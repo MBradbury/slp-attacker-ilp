@@ -1,0 +1,21 @@
+/*********************************************
+ * OPL 12.6.0.0 Data
+ * Author: Matt
+ * Creation Date: 24 Oct 2016 at 09:31:56
+ *********************************************/
+
+num_nodes = 9;
+source_id = 1;
+comms_range = 1.0;
+attacker_range = 1.0;
+
+Coordinates = [
+	<0,0,0>, <1,0,0>, <2,0,0>,
+	<0,1,0>, <1,1,0>, <2,1,0>,
+	<0,2,0>, <1,2,0>, <2,2,0>,
+];
+
+attacker_start_pos = 9;
+
+source_messages = 10;
+//safety = 10.0;
