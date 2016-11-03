@@ -8,7 +8,6 @@
 num_nodes = 9;
 comms_range = 1.0;
 SourceIDs = {1};
-sink_id = 9;
 
 Coordinates = [
 	<0,0,0>, <1,0,0>, <2,0,0>,
@@ -23,6 +22,35 @@ attacker_range = 1.0;
 // Routing Settings
 source_period = 1; // seconds between messages
 forwarding_delay = 0.01; // seconds
-safety_period = 6.0;
+safety_period = 10.0;
 
-slots_per_second = 5;
+source_messages = 10;
+
+/*RoutingSend = [
+	{2,4}, {5,3}, {6},
+	{5,7}, {6,8}, {9},
+	{8}, {9}, {},
+];*/
+
+RoutingSendSeq = [
+	[1, 0, 0,
+	 0, 0, 0,
+	 0, 0, 0],
+	
+	[0, 1, 0,
+	 1, 0, 0,
+	 0, 0, 0],
+	
+	[0, 0, 1,
+	 0, 1, 0,
+	 1, 0, 0],
+	
+	[0, 0, 0,
+	 0, 0, 1,
+	 0, 1, 0],
+	
+	[0, 0, 0,
+	 0, 0, 0,
+	 0, 0, 1],
+];
+
