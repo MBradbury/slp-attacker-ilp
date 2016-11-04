@@ -23,6 +23,6 @@ attacker_range = 1.0;
 // Routing Settings
 source_period = 1; // seconds between messages
 forwarding_delay = 0.01; // seconds
-safety_period = 6.0;
+safety_period = 5.0;
 
 slots_per_second = 5;

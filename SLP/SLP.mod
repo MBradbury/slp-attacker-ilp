@@ -69,12 +69,14 @@ dvar boolean attacker_path[Times][AttackerEdges];
 
 //dexpr int receives[n in Nodes][m in Messages][t in Times] = sum(n1 in Neighbours[n]) broadcasts[n1][m][t-1];
 
-minimize
+maximize
+	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
+  
   	// Minimise the number of messages sent
 	//sum(n in Nodes) sum(m in Messages) sum(t in Times) broadcasts[n][m][t];
 	
 	// Minimise the number of moves the attacker makes in response to a broadcast
-	sum(e in AttackerEdges) sum(m in Messages) sum(t in Times) (broadcasts[e.v][m][t] == attacker_path[t][e]);
+	//sum(e in AttackerEdges) sum(m in Messages) sum(t in Times) (broadcasts[e.v][m][t] == attacker_path[t][e]);
 
 subject to {
 	ct1: // When do source nodes send messages
@@ -82,10 +84,15 @@ subject to {
 	  forall (m in Messages)
 	    broadcasts[n][m][(m - 1) * source_period_quantised] == 1;
 	
-	ct2: // Each node sends a message once at maximum
+	ct21: // No node sends more than one message at once
 	forall (t in Times)
 	  forall (n in Nodes)
 	    (sum (m in Messages) broadcasts[n][m][t]) <= 1;
+	
+	ct22: // Once a message is sent by one node it is never sent by that node again
+	forall (m in Messages)
+	  forall (n in Nodes)
+	    (sum (t in Times) broadcasts[n][m][t]) <= 1;
 	
 	ct3: // Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
@@ -116,9 +123,9 @@ subject to {
 	  forall (n in Nodes)
 		forall (t in Times : t > 0)
 		  // If n broadcasts at t and the attacker moved to a neighbour of n at t-1
-		  broadcasts[n][m][t] == 1 && sum (e in AttackerEdges : e.v in Neighbours[n]) attacker_path[t-1][e] == 1 =>
-		    // then the attacker can either move to n or stay where it is
-		  	sum (e in AttackerEdges : e.v == n || e.u == e.v) attacker_path[t][e] == 1;
+		  broadcasts[n][m][t] == 1 && (sum (e in AttackerEdges : e.v in Neighbours[n]) attacker_path[t-1][e]) == 1 =>
+		    // then the attacker can either move to n /*or stay where it is*/
+		  	sum (e in AttackerEdges : e.v == n /*|| e.u == e.v*/) attacker_path[t][e] == 1;
 	
 	ct9: // Attacker only moves once per message
 	forall (t1 in Times)
