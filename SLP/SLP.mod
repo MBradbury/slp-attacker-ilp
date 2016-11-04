@@ -109,14 +109,14 @@ subject to {
 	  (sum (e in AttackerEdges) attacker_path[t][e]) == 1;
 	
 	ct07: // First attacker move must be from its starting position (t = 0)
-	(sum(e in AttackerEdges : e.u != attacker_start_pos) attacker_path[0][e]) == 0;
+	(sum(e in AttackerEdges : e.u == attacker_start_pos) attacker_path[0][e]) == 1;
 	
 	ct08: // Attacker must move from its current position
 	forall (t in Times : t > 0)
 	  (sum(e1,e2 in AttackerEdges : e1.v == e2.u)
 	  	(attacker_path[t-1][e1] == 1 && attacker_path[t][e2] == 1)) == 1;
 	
-	ct09: // Attacker can only move in response to sent messages
+	ct09_1: // Attacker can only move in response to sent messages
 	// If a message is sent by n at t, then at t+1 the attacker cannot move to a node other than n.
 	forall (m in Messages)
 	  forall (n in Nodes)
@@ -125,6 +125,18 @@ subject to {
 		  broadcasts[n][m][t] == 1 && (sum (e in AttackerEdges : e.v in Neighbours[n]) attacker_path[t-1][e]) == 1 =>
 		    // then the attacker can either move to n /*or stay where it is*/
 		  	(sum (e in AttackerEdges : e.v == n /*|| e.u == e.v*/) attacker_path[t][e]) == 1;
+	
+	ct09_2: // Attacker does not move when no neighbours send a message
+	forall (m in Messages)
+	    (sum (e in AttackerEdges : e.u == attacker_start_pos) broadcasts[e.v][m][0]) == 0 =>
+	    	(sum (e in AttackerEdges : e.u == e.v) attacker_path[0][e]) == 1;
+	
+	ct09_3: // Attacker does not move when no neighbours send a message
+	forall (m in Messages)
+	  forall (t in Times : t > 0)
+	    forall (e1 in AttackerEdges)
+	      (attacker_path[t-1][e1] == 1 && (sum (n in AttackerNeighbours[e1.v]) broadcasts[n][m][t]) == 0) =>
+	        (sum (e2 in AttackerEdges : e2.u == e2.v) attacker_path[t][e2]) == 1;
 	
 	ct10: // Attacker only moves once per message
 	forall (t1 in Times)
@@ -136,6 +148,11 @@ subject to {
 	      	(sum (t2 in Times : t2 > t1)
 	      	  sum (e2 in AttackerEdges : e2.u != e2.v)
 	      	    (broadcasts[e2.v][m][t2] == 1 && attacker_path[t2][e2] == 1)) == 0;
+
+	ct11: // If no message is broadcasted in a time slot, the attacker must stay where it is
+	forall (t in Times)
+	  (sum (n in Nodes) sum (m in Messages) broadcasts[n][m][t]) == 0 =>
+	    (sum (e in AttackerEdges : e.u == e.v) attacker_path[t][e]) == 1;
 };
 
 {Edge} Used[t in Times] = {e | e in AttackerEdges : attacker_path[t][e] == 1};
