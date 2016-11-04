@@ -54,9 +54,9 @@ sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && 
 
 {Edge} SourceSelfEdges = { <u,v> | u,v in SourceIDs : u == v };
 
-// Eliminate self-self moves except for source-source. The attacker wants to reach the source asap.
 // It will stay at the source node once it reaches it.
-{Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range };
+{Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
+                       { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges };
 
 // Others
