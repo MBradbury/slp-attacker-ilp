@@ -1,11 +1,19 @@
 #!/usr/bin/env python
+from __future__ import print_function, division
 
+import ast
+from pprint import pprint
+
+import networkx as nx
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
-
-import matplotlib.pyplot as plt
 import scipy.integrate as integrate
+
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
+import matplotlib.patches as mpatches
 
 coords = [
 	(0, 0), (1, 0), (2, 0),
@@ -13,16 +21,70 @@ coords = [
 	(0, 2), (1, 2), (2, 2),
 ]
 
-messages = 10
+neighbours = {
+    1: {2, 4},
+    2: {1, 3, 5},
+    3: {2, 6},
+    4: {1, 5, 7},
+    5: {2, 4, 6, 8},
+    6: {3, 5, 9},
+    7: {4, 8},
+    8: {5, 7, 9},
+    9: {6, 8},
+}
+
+graph = nx.Graph()
+graph.add_nodes_from(range(1, len(coords)+1))
+
+# Store the coordinates
+for (nid, coord) in enumerate(coords, start=1):
+    graph.node[nid]['pos'] = coord
+    graph.node[nid]['label'] = nid
+
+# Add edges
+for (nid, nid_neighbours) in neighbours.items():
+    graph.add_edges_from((nid, n) for n in nid_neighbours)
+
+messages = 5
 
 slots_per_second = 5
 
-attacker_edges = [
+attacker_edges = (
+    (1, 1),
+    (2, 1),
+    (2, 2),
+    (2, 3),
+    (2, 5),
+    (3, 2),
+    (3, 3),
+    (3, 6),
+    (4, 1),
+    (4, 4),
+    (4, 5),
+    (4, 7),
+    (5, 2),
+    (5, 4),
+    (5, 5),
+    (5, 6),
+    (5, 8),
+    (6, 3),
+    (6, 5),
+    (6, 6),
+    (6, 9),
+    (7, 4),
+    (7, 7),
+    (7, 8),
+    (8, 5),
+    (8, 7),
+    (8, 8),
+    (8, 9),
+    (9, 6),
+    (9, 8),
+    (9, 9),
+)
 
-]
-
-
-attacker_path = [
+# Times -> AttackerEdges
+attacker_path = """[
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
@@ -49,9 +111,10 @@ attacker_path = [
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
              [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-]
+]"""
 
-broadcasts = [[[0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+# Nodes -> Messages -> Times
+broadcasts = """[[[0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
                  [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
                  [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
                  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
@@ -95,155 +158,92 @@ broadcasts = [[[0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
                  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
                  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
                  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]]
+                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]]"""
 
+def ilp_ndarray_str_eval(il_array):
+    il_array = il_array.replace("0 ", "0, ")
+    il_array = il_array.replace("1 ", "1, ")
+    il_array = il_array.replace("]", "],")
+
+    return ast.literal_eval(il_array[:-1])
+
+attacker_path = ilp_ndarray_str_eval(attacker_path)
+broadcasts = ilp_ndarray_str_eval(broadcasts)
 
 # First of all convert the attacker moves and broadcasts into something sane
-attacker_moves = [attacker_edges[moves.index(1)] for moves in attacker_moves]
-broadcasts = [broadcast.index(1) for broadcast in broadcasts]
+attacker_moves_at_time = [attacker_edges[moves.index(1)] for moves in attacker_path]
+broadcasts_at_time = [set() for _ in attacker_moves_at_time]
 
-attacker_positions = [v for (u, v) in attacker_moves]
+for (nid, mess_and_time) in enumerate(broadcasts, start=1):
+    for (mess, times) in enumerate(mess_and_time, start=1):
+        try:
+            time = times.index(1)
 
+            broadcasts_at_time[time].add((nid, mess))
+        except ValueError:
+            pass
 
-class ParticleBox:
-    """Orbits class
-    
-    init_state is an [N x 4] array, where N is the number of particles:
-       [[x1, y1, vx1, vy1],
-        [x2, y2, vx2, vy2],
-        ...               ]
+attacker_positions = [v for (u, v) in attacker_moves_at_time]
 
-    bounds is the size of the box: [xmin, xmax, ymin, ymax]
-    """
-    def __init__(self,
-                 init_state = [[1, 0, 0, -1],
-                               [-0.5, 0.5, 0.5, 0.5],
-                               [-0.5, -0.5, -0.5, 0.5]],
-                 bounds = [-2, 2, -2, 2],
-                 size = 0.04,
-                 M = 0.05,
-                 G = 9.8):
-        self.init_state = np.asarray(init_state, dtype=float)
-        self.M = M * np.ones(self.init_state.shape[0])
-        self.size = size
-        self.state = self.init_state.copy()
-        self.time_elapsed = 0
-        self.bounds = bounds
-        self.G = G
+time_steps = len(attacker_moves_at_time)
 
-    def step(self, dt):
-        """step once by dt seconds"""
-        self.time_elapsed += dt
-        
-        # update positions
-        self.state[:, :2] += dt * self.state[:, 2:]
+def get_cmap(N):
+    '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
+    RGBA color.'''
+    color_norm  = colors.Normalize(vmin=0, vmax=N-1)
+    scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
+    def map_index_to_rgb_color(index):
+        return scalar_map.to_rgba(index)
+    return map_index_to_rgb_color
 
-        # find pairs of particles undergoing a collision
-        D = squareform(pdist(self.state[:, :2]))
-        ind1, ind2 = np.where(D < 2 * self.size)
-        unique = (ind1 < ind2)
-        ind1 = ind1[unique]
-        ind2 = ind2[unique]
+colour_map = get_cmap(messages)
 
-        # update velocities of colliding pairs
-        for i1, i2 in zip(ind1, ind2):
-            # mass
-            m1 = self.M[i1]
-            m2 = self.M[i2]
-
-            # location vector
-            r1 = self.state[i1, :2]
-            r2 = self.state[i2, :2]
-
-            # velocity vector
-            v1 = self.state[i1, 2:]
-            v2 = self.state[i2, 2:]
-
-            # relative location & velocity vectors
-            r_rel = r1 - r2
-            v_rel = v1 - v2
-
-            # momentum vector of the center of mass
-            v_cm = (m1 * v1 + m2 * v2) / (m1 + m2)
-
-            # collisions of spheres reflect v_rel over r_rel
-            rr_rel = np.dot(r_rel, r_rel)
-            vr_rel = np.dot(v_rel, r_rel)
-            v_rel = 2 * r_rel * vr_rel / rr_rel - v_rel
-
-            # assign new velocities
-            self.state[i1, 2:] = v_cm + v_rel * m2 / (m1 + m2)
-            self.state[i2, 2:] = v_cm - v_rel * m1 / (m1 + m2) 
-
-        # check for crossing boundary
-        crossed_x1 = (self.state[:, 0] < self.bounds[0] + self.size)
-        crossed_x2 = (self.state[:, 0] > self.bounds[1] - self.size)
-        crossed_y1 = (self.state[:, 1] < self.bounds[2] + self.size)
-        crossed_y2 = (self.state[:, 1] > self.bounds[3] - self.size)
-
-        self.state[crossed_x1, 0] = self.bounds[0] + self.size
-        self.state[crossed_x2, 0] = self.bounds[1] - self.size
-
-        self.state[crossed_y1, 1] = self.bounds[2] + self.size
-        self.state[crossed_y2, 1] = self.bounds[3] - self.size
-
-        self.state[crossed_x1 | crossed_x2, 2] *= -1
-        self.state[crossed_y1 | crossed_y2, 3] *= -1
-
-        # add gravity
-        self.state[:, 3] -= self.M * self.G * dt
-
-
-#------------------------------------------------------------
-# set up initial state
-np.random.seed(0)
-init_state = -0.5 + np.random.random((50, 4))
-init_state[:, :2] *= 3.9
-
-box = ParticleBox(init_state, size=0.04)
-dt = 1. / 30 # 30fps
-
+attacker_colour = "red"
+message_colours = [str(colors.rgb2hex(colour_map(i))) for i in range(messages)]
 
 #------------------------------------------------------------
 # set up figure and animation
-fig = plt.figure()
-fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
-ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
-                     xlim=(-3.2, 3.2), ylim=(-2.4, 2.4))
+fig = plt.gcf()
 
-# particles holds the locations of the particles
-particles, = ax.plot([], [], 'bo', ms=6)
-
-# rect is the box edge
-rect = plt.Rectangle(box.bounds[::2],
-                     box.bounds[1] - box.bounds[0],
-                     box.bounds[3] - box.bounds[2],
-                     ec='none', lw=2, fc='none')
-ax.add_patch(rect)
+pos = nx.get_node_attributes(graph, 'pos')
 
 def init():
-    """initialize animation"""
-    global box, rect
-    particles.set_data([], [])
-    rect.set_edgecolor('none')
-    return particles, rect
+    global attacker_responded_to
+    attacker_responded_to = []
 
 def animate(i):
-    """perform animation step"""
-    global box, rect, dt, ax, fig
-    box.step(dt)
+    global attacker_responded_to
+    fig.clf()
 
-    ms = int(fig.dpi * 2 * box.size * fig.get_figwidth()
-             / np.diff(ax.get_xbound())[0])
+    ax = fig.gca()
     
-    # update pieces of the animation
-    rect.set_edgecolor('k')
-    particles.set_data(box.state[:, 0], box.state[:, 1])
-    particles.set_markersize(ms)
-    return particles, rect
+    attacker_at_node = attacker_positions[i]
 
-ani = animation.FuncAnimation(fig, animate, frames=600,
-                              interval=10, blit=True, init_func=init)
+    # When the attacker is on a node set it to red
+    colours = ["w"] * len(coords)
+    colours[attacker_at_node-1] = attacker_colour
+
+    # Draw circles behind nodes when broadcasting
+    for (nid, msg) in broadcasts_at_time[i]:
+        c = plt.Circle(coords[nid-1], radius=0.25, color=message_colours[msg-1], label=msg)
+        ax.add_patch(c)
+
+        if i > 0 and attacker_positions[i] != attacker_positions[i-1] and attacker_at_node == nid:
+            attacker_responded_to.append(msg)
+
+    # Draw the graph
+    nx.draw(graph, pos, node_size=750, node_color=colours)
+
+    labels = nx.draw_networkx_labels(graph, pos, nx.get_node_attributes(graph, 'label'), font_size=16)
+
+    ax.annotate("Time Step {}, actual time is {:.3f} seconds\nResponded to {} messages".format(i, i/slots_per_second, attacker_responded_to), (0.1,-0.4)) # add text
+
+    legend_patches = [mpatches.Patch(color=colour, label='Msg {}'.format(msg)) for (colour, msg) in zip(message_colours, range(1, messages+1))]
+    lgd = ax.legend(handles=legend_patches, loc=(-0.15,0.2))
+
+ani = animation.FuncAnimation(fig, animate, frames=time_steps,
+                              interval=2500, blit=False, init_func=init,
+                              repeat=True, repeat_delay=2500)
 
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
@@ -251,6 +251,7 @@ ani = animation.FuncAnimation(fig, animate, frames=600,
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-ani.save('particle_box.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+ani.save('attackerilp.mp4', extra_args=['-vcodec', 'libx264'])
+ani.save('attackerilp.gif', writer='imagemagick')
 
 plt.show()
