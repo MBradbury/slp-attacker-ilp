@@ -1,2 +1,7 @@
 syntax: glob
 .metadata/*
+*.gif
+*.mp4
+*.pyc
+*.pyo
+

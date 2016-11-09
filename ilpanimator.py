@@ -2,7 +2,9 @@
 from __future__ import print_function, division
 
 import ast
+import importlib
 from pprint import pprint
+import sys
 
 import networkx as nx
 import numpy as np
@@ -15,150 +17,24 @@ import matplotlib.cm as cmx
 import matplotlib.colors as colors
 import matplotlib.patches as mpatches
 
-coords = [
-	(0, 0), (1, 0), (2, 0),
-	(0, 1), (1, 1), (2, 1),
-	(0, 2), (1, 2), (2, 2),
-]
+results_name = sys.argv[1]
 
-neighbours = {
-    1: {2, 4},
-    2: {1, 3, 5},
-    3: {2, 6},
-    4: {1, 5, 7},
-    5: {2, 4, 6, 8},
-    6: {3, 5, 9},
-    7: {4, 8},
-    8: {5, 7, 9},
-    9: {6, 8},
-}
+results = importlib.import_module(results_name)
+
+
+
 
 graph = nx.Graph()
-graph.add_nodes_from(range(1, len(coords)+1))
+graph.add_nodes_from(range(1, len(results.coords)+1))
 
 # Store the coordinates
-for (nid, coord) in enumerate(coords, start=1):
+for (nid, coord) in enumerate(results.coords, start=1):
     graph.node[nid]['pos'] = coord
     graph.node[nid]['label'] = nid
 
 # Add edges
-for (nid, nid_neighbours) in neighbours.items():
+for (nid, nid_neighbours) in results.neighbours.items():
     graph.add_edges_from((nid, n) for n in nid_neighbours)
-
-messages = 5
-
-slots_per_second = 5
-
-attacker_edges = (
-    (1, 1),
-    (2, 1),
-    (2, 2),
-    (2, 3),
-    (2, 5),
-    (3, 2),
-    (3, 3),
-    (3, 6),
-    (4, 1),
-    (4, 4),
-    (4, 5),
-    (4, 7),
-    (5, 2),
-    (5, 4),
-    (5, 5),
-    (5, 6),
-    (5, 8),
-    (6, 3),
-    (6, 5),
-    (6, 6),
-    (6, 9),
-    (7, 4),
-    (7, 7),
-    (7, 8),
-    (8, 5),
-    (8, 7),
-    (8, 8),
-    (8, 9),
-    (9, 6),
-    (9, 8),
-    (9, 9),
-)
-
-# Times -> AttackerEdges
-attacker_path = """[
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
-             [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-]"""
-
-# Nodes -> Messages -> Times
-broadcasts = """[[[0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]]
-             [[0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]]
-             [[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]]
-             [[0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
-             [[0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
-             [[0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]]
-             [[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
-             [[0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
-             [[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
-                 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]]"""
 
 def ilp_ndarray_str_eval(il_array):
     il_array = il_array.replace("0 ", "0, ")
@@ -167,11 +43,11 @@ def ilp_ndarray_str_eval(il_array):
 
     return ast.literal_eval(il_array[:-1])
 
-attacker_path = ilp_ndarray_str_eval(attacker_path)
-broadcasts = ilp_ndarray_str_eval(broadcasts)
+attacker_path = ilp_ndarray_str_eval(results.attacker_path)
+broadcasts = ilp_ndarray_str_eval(results.broadcasts)
 
 # First of all convert the attacker moves and broadcasts into something sane
-attacker_moves_at_time = [attacker_edges[moves.index(1)] for moves in attacker_path]
+attacker_moves_at_time = [results.attacker_edges[moves.index(1)] for moves in attacker_path]
 broadcasts_at_time = [set() for _ in attacker_moves_at_time]
 
 for (nid, mess_and_time) in enumerate(broadcasts, start=1):
@@ -196,10 +72,10 @@ def get_cmap(N):
         return scalar_map.to_rgba(index)
     return map_index_to_rgb_color
 
-colour_map = get_cmap(messages)
+colour_map = get_cmap(results.messages)
 
 attacker_colour = "red"
-message_colours = [str(colors.rgb2hex(colour_map(i))) for i in range(messages)]
+message_colours = [str(colors.rgb2hex(colour_map(i))) for i in range(results.messages)]
 
 #------------------------------------------------------------
 # set up figure and animation
@@ -220,12 +96,12 @@ def animate(i):
     attacker_at_node = attacker_positions[i]
 
     # When the attacker is on a node set it to red
-    colours = ["w"] * len(coords)
+    colours = ["w"] * len(results.coords)
     colours[attacker_at_node-1] = attacker_colour
 
     # Draw circles behind nodes when broadcasting
     for (nid, msg) in broadcasts_at_time[i]:
-        c = plt.Circle(coords[nid-1], radius=0.25, color=message_colours[msg-1], label=msg)
+        c = plt.Circle(results.coords[nid-1], radius=0.25, color=message_colours[msg-1], label=msg)
         ax.add_patch(c)
 
         if i > 0 and attacker_positions[i] != attacker_positions[i-1] and attacker_at_node == nid:
@@ -236,9 +112,9 @@ def animate(i):
 
     labels = nx.draw_networkx_labels(graph, pos, nx.get_node_attributes(graph, 'label'), font_size=16)
 
-    ax.annotate("Time Step {}, actual time is {:.3f} seconds\nResponded to {} messages".format(i, i/slots_per_second, attacker_responded_to), (0.1,-0.4)) # add text
+    ax.annotate("Time Step {}, actual time is {:.3f} seconds\nResponded to {} messages".format(i, i/results.slots_per_second, attacker_responded_to), (0.1,-0.4)) # add text
 
-    legend_patches = [mpatches.Patch(color=colour, label='Msg {}'.format(msg)) for (colour, msg) in zip(message_colours, range(1, messages+1))]
+    legend_patches = [mpatches.Patch(color=colour, label='Msg {}'.format(msg)) for (colour, msg) in zip(message_colours, range(1, results.messages+1))]
     lgd = ax.legend(handles=legend_patches, loc=(-0.15,0.2))
 
 ani = animation.FuncAnimation(fig, animate, frames=time_steps,
