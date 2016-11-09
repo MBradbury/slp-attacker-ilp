@@ -7,6 +7,12 @@
 			<ref name="SLP.dat" type="data">
 			</ref>
 		</config>
+		<config category="opl" default="false" name="5x5">
+			<ref name="SLP.mod" type="model">
+			</ref>
+			<ref name="SLP5x5.dat" type="data">
+			</ref>
+		</config>
 	</configs>
 	
 </project>

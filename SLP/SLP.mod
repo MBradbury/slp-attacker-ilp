@@ -30,7 +30,6 @@ float attacker_range = ...; // The distance the attacker can hear messages from
 // Routing
 
 float source_period = ...; // seconds between messages
-float forwarding_delay = ...; // seconds
 float safety_period = ...;
 
 int slots_per_second = ...;
