@@ -3,13 +3,10 @@ from __future__ import print_function, division
 
 import ast
 import importlib
-from pprint import pprint
 import sys
 
 import networkx as nx
 import numpy as np
-from scipy.spatial.distance import pdist, squareform
-import scipy.integrate as integrate
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -20,8 +17,6 @@ import matplotlib.patches as mpatches
 results_name = sys.argv[1]
 
 results = importlib.import_module(results_name)
-
-
 
 
 graph = nx.Graph()
@@ -127,7 +122,7 @@ ani = animation.FuncAnimation(fig, animate, frames=time_steps,
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-ani.save('attackerilp.mp4', extra_args=['-vcodec', 'libx264'])
-ani.save('attackerilp.gif', writer='imagemagick')
+ani.save('{}.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
+ani.save('{}.gif'.format(results_name), writer='imagemagick')
 
 plt.show()
