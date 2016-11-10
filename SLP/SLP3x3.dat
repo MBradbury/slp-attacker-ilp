@@ -19,7 +19,7 @@ Coordinates = [
 // Attacker
 attacker_start_pos = 9;
 attacker_range = 1.0;
-attacker_move_history = 1;
+attacker_move_history = 0;
 
 // Routing Settings
 source_period = 1; // seconds between messages

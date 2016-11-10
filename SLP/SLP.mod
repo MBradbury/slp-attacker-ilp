@@ -84,6 +84,7 @@ dexpr int attacker_moved_because_at[m in Messages][t in Times] =
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
   
+//minimize
   	// Minimise the number of messages sent
 	//sum(n in Nodes) sum(m in Messages) sum(t in Times) broadcasts[n][m][t];
 	
@@ -173,7 +174,7 @@ subject to {
 	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) sum (m in Messages) broadcasts[n][m][t]) == 0) =>
 	      attacker_self_move[t] == 1;
 	
-	ctA08: // The attacker does not move back to the attacker_move_history previous locations
+	/*ctA08: // The attacker does not move back to the attacker_move_history previous locations
 	if (attacker_move_history > 0)
 	  forall (t in Times : t > attacker_move_history)
 		forall (e in AttackerEdges : e.u != e.v)
@@ -182,7 +183,7 @@ subject to {
 		  	// Then the attacker shouldn't have moved to e.v on the past attacker_move_history moves
 		  	(sum (t2 in Times : t-attacker_move_history <= t2 < t)
 		  	  sum (e2 in AttackerEdges : e2.u != e2.v && e2.v == e.v)
-		  	    attacker_path[t2][e2]) == 0;
+		  	    attacker_path[t2][e2]) == 0;*/
 };
 
 {Edge} Used[t in Times] = {e | e in AttackerEdges : attacker_path[t][e] == 1};
