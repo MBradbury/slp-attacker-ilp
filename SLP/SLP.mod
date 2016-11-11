@@ -3,7 +3,7 @@ tuple Coords
 {
 	float x;
 	float y;
-	float z;
+	//float z;
 }
 
 tuple Edge
@@ -46,8 +46,7 @@ range Messages = 1..ftoi(ceil(safety_period * source_period)); // Number of mess
 
 float Distance[i in Nodes][j in Nodes] = 
 	sqrt((Coordinates[i].x - Coordinates[j].x)^2 +
-	     (Coordinates[i].y - Coordinates[j].y)^2 +
-	     (Coordinates[i].z - Coordinates[j].z)^2);
+	     (Coordinates[i].y - Coordinates[j].y)^2);
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
 sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
@@ -151,7 +150,7 @@ subject to {
 	  forall (m in Messages)
         forall (t in Times : t > 0)
 		  // If the attacker moved to a neighbour of n at t-1
-		  (sum (neigh in AttackerNeighbours[n]) attacker_moved_to_at[neigh][t-1] == 1) == 1 &&
+		  (sum (neigh in AttackerNeighbours[n]) attacker_moved_to_at[neigh][t-1]) == 1 &&
 		  // and node n sent m at t
 		  (broadcasts[n][m][t] == 1) &&
 		  // and the attacker has never moved in response to m before

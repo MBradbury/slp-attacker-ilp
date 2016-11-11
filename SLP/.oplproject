@@ -13,6 +13,12 @@
 			<ref name="SLP3x3.dat" type="data">
 			</ref>
 		</config>
+		<config category="opl" default="false" name="4x4">
+			<ref name="SLP.mod" type="model">
+			</ref>
+			<ref name="SLP4x4.dat" type="data">
+			</ref>
+		</config>
 	</configs>
 	
 </project>
