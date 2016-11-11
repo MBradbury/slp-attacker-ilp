@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?><project>
+	<version>1.0</version>
+	<configs>
+		<config category="opl" default="false" name="5x5">
+			<ref name="SLP.mod" type="model">
+			</ref>
+			<ref name="SLP5x5.dat" type="data">
+			</ref>
+		</config>
+		<config category="opl" default="true" name="3x3">
+			<ref name="SLP.mod" type="model">
+			</ref>
+			<ref name="SLP3x3.dat" type="data">
+			</ref>
+		</config>
+	</configs>
+	
+</project>
