@@ -1,9 +1,9 @@
+using CP;
 
 tuple Coords
 {
 	float x;
 	float y;
-	float z;
 }
 
 tuple Edge
@@ -46,8 +46,7 @@ range SourceMessages = 1..ftoi(ceil(safety_period * source_period)); // Number o
 
 float Distance[i in Nodes][j in Nodes] = 
 	sqrt((Coordinates[i].x - Coordinates[j].x)^2 +
-	     (Coordinates[i].y - Coordinates[j].y)^2 +
-	     (Coordinates[i].z - Coordinates[j].z)^2);
+	     (Coordinates[i].y - Coordinates[j].y)^2);
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
 sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
@@ -56,14 +55,14 @@ sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && 
 {Edge} SourceSelfEdges = { <u,v> | u,v in SourceIDs : u == v };
 
 // It will stay at the source node once it reaches it.
-{Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
+sorted {Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                        { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 
 // Others
 
 // Which nodes broadcast which messages at which time.
-dvar int+ broadcasts[Nodes][Times];
+dvar int broadcasts[Nodes][Times] in 0..card(SourceMessages);
 
 // What path does the attacker take
 dvar boolean attacker_path[Times][AttackerEdges];
@@ -81,12 +80,12 @@ dexpr int attacker_moved_because_at[n in Nodes][t1 in Times][t in Times] =
 	(sum (e in AttackerEdges : e.u != e.v)
 		(attacker_path[t][e] == 1 && broadcasts[e.v][t] == broadcasts[n][t1])) == 1;
 
-//maximize
-//	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
+maximize
+	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
   
-minimize
+//minimize
   	// Minimise the number of messages sent
-	sum(n in Nodes) sum(t in Times) (broadcasts[n][t] != 0);
+	//sum(n in Nodes) sum(t in Times) (broadcasts[n][t] != 0);
 	
 	// Minimise the number of moves the attacker makes in response to a broadcast
 	//sum(e in AttackerEdges) sum(m in Messages) sum(t in Times) (broadcasts[e.v][m][t] == attacker_path[t][e]);
@@ -94,7 +93,8 @@ minimize
 subject to {
 
 	ctR00: // No messages are sent at t=0
-	(sum (n in Nodes) (broadcasts[n][0] == 0)) == card(Nodes);
+	forall (n in Nodes)
+	  broadcasts[n][0] == 0;
 	
 	ctR01: // When do source nodes send messages
 	forall (n in SourceIDs)
@@ -122,7 +122,7 @@ subject to {
 	  (sum (n in Neighbours[sink_id]) sum (t in Times) (broadcasts[n][t] == m)) >= 1;
 	
 	// The first attacker move at the special time t=0 is the self-self move.
-	/*ctA01:
+	ctA01:
 	attacker_path[0][<attacker_start_pos,attacker_start_pos>] == 1;
 	
 	ctA02: // Attacker makes one move each time step (This may be the self-self move)
@@ -172,7 +172,7 @@ subject to {
 	forall (t in Times : t > 0)
 	  forall (e in AttackerEdges)
 	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) broadcasts[n][t] != 0) == 0) =>
-	      attacker_self_move[t] == 1;*/
+	      attacker_self_move[t] == 1;
 };
 
 {Edge} Used[t in Times] = {e | e in AttackerEdges : attacker_path[t][e] == 1};

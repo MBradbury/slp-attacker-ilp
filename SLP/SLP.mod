@@ -55,7 +55,7 @@ sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && 
 {Edge} SourceSelfEdges = { <u,v> | u,v in SourceIDs : u == v };
 
 // It will stay at the source node once it reaches it.
-{Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
+sorted {Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                        { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 
@@ -93,7 +93,9 @@ maximize
 subject to {
 
 	ctR00: // No messages are sent at t=0
-	(sum (n in Nodes) sum (m in Messages) broadcasts[n][m][0]) == 0;
+	forall (n in Nodes)
+	  forall (m in Messages)
+	    broadcasts[n][m][0] == 0;
 	
 	ctR01: // When do source nodes send messages
 	forall (n in SourceIDs)
