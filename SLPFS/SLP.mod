@@ -21,12 +21,17 @@ int sink_id = ...;
 range Nodes = 1..num_nodes;
 //{int} NodeSet = asSet(Nodes);
 
+assert sink_id in Nodes;
+assert forall (source_id in SourceIDs) source_id in Nodes;
+
 Coords Coordinates[i in Nodes] = ...;
 
 // Attacker
 int attacker_start_pos = ...; // The id of the node the attacker starts at
 float attacker_range = ...; // The distance the attacker can hear messages from
 int attacker_move_history = ...; // The number of previous moves the attacker will consider when making the next move
+
+assert attacker_start_pos in Nodes;
 
 // Routing
 
@@ -56,7 +61,7 @@ sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && 
 
 // It will stay at the source node once it reaches it.
 sorted {Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
-                       { <s,v> | s in SourceIDs, v in Nodes : s != v };
+                              { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 
 // Others
@@ -113,13 +118,13 @@ subject to {
 	
 	ctR04: // Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
-	    forall (t1 in Times)
+	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][t1] != 0) => 
-	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : t2 < t1) (broadcasts[neigh][t2] == broadcasts[n][t1])) >= 1;
+	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[neigh][t2] == broadcasts[n][t1])) >= 1;
 	
 	ctR05: // Messages must reach the sink
 	forall (m in SourceMessages)
-	  (sum (n in Neighbours[sink_id]) sum (t in Times) (broadcasts[n][t] == m)) >= 1;
+	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) (broadcasts[n][t] == m)) >= 1;
 	
 	// The first attacker move at the special time t=0 is the self-self move.
 	ctA01:
