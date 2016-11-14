@@ -4,4 +4,7 @@
   <category name="cp">
     <setting name="logverbosity" value="Verbose"/>
   </category>
+  <category name="cplex">
+    <setting name="memoryemphasis" value="true"/>
+  </category>
 </settings>
