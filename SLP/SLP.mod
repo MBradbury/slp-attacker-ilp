@@ -142,7 +142,7 @@ subject to {
 	  (sum (e1, e2 in AttackerEdges : e1.v == e2.u)
 	  	(attacker_path[t-1][e1] == 1 && attacker_path[t][e2] == 1)) == 1;
 	
-	// The attacker only moves to a new node in response to a message
+	// The attacker only moves when a message is broadcasted. It cannot move on its own.
 	ctA04:
 	forall (n in Nodes)
 	  forall (t in Times : t > 0)
@@ -161,7 +161,7 @@ subject to {
 		  // and node n sent m at t
 		  (broadcasts[n][m][t] == 1) &&
 		  // and the attacker has never moved in response to m before
-		  (sum (t2 in Times : t2 < t) (attacker_moved_because_at[m][t2] == 1)) == 0
+		  (sum (t2 in Times : 0 < t2 < t) (attacker_moved_because_at[m][t2] == 1)) == 0
 		
 		  // then the attacker moves in response to this message
 		  => attacker_moved_to_at[n][t] == 1;
