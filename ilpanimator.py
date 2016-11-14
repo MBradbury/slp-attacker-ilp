@@ -32,6 +32,7 @@ for (nid, nid_neighbours) in results.neighbours.items():
     graph.add_edges_from((nid, n) for n in nid_neighbours)
 
 def ilp_ndarray_str_eval(il_array):
+    il_array = il_array.replace("\n", " ")
     il_array = il_array.replace("0 ", "0, ")
     il_array = il_array.replace("1 ", "1, ")
     il_array = il_array.replace("]", "],")
