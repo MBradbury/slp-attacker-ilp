@@ -1,0 +1,28 @@
+/*********************************************
+ * OPL 12.6.0.0 Data
+ * Author: Matt
+ * Creation Date: 24 Oct 2016 at 09:31:56
+ *********************************************/
+
+// Network
+num_nodes = 9;
+comms_range = 1.0;
+SourceIDs = {1};
+sink_id = 9;
+
+Coordinates = [
+	<0,0>, <1,0>, <2,0>,
+	<0,1>, <1,1>, <2,1>,
+	<0,2>, <1,2>, <2,2>,
+];
+
+// Attacker
+attacker_start_pos = 9;
+attacker_range = 1.0;
+attacker_move_history = 0;
+
+// Routing Settings
+source_period = 1; // seconds between messages
+safety_period = 5.0;
+
+slots_per_second = 5;

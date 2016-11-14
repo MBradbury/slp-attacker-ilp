@@ -17,14 +17,6 @@
 			<ref name="Settings.ops" type="setting">
 			</ref>
 		</config>
-		<config category="opl" default="false" name="4x4">
-			<ref name="SLP.mod" type="model">
-			</ref>
-			<ref name="SLP4x4.dat" type="data">
-			</ref>
-			<ref name="Settings.ops" type="setting">
-			</ref>
-		</config>
 	</configs>
 	
 </project>
