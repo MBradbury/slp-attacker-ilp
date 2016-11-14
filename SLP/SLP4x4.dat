@@ -18,7 +18,7 @@ Coordinates = [
 ];
 
 // Attacker
-attacker_start_pos = 11;
+attacker_start_pos = 16;
 attacker_range = 1.0;
 attacker_move_history = 0;
 
@@ -26,4 +26,4 @@ attacker_move_history = 0;
 source_period = 1; // seconds between messages
 safety_period = 7.0;
 
-slots_per_second = 5;
+slots_per_second = 7;
