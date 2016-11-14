@@ -39,21 +39,58 @@ def ilp_ndarray_str_eval(il_array):
 
     return ast.literal_eval(il_array[:-1])
 
-attacker_path = ilp_ndarray_str_eval(results.attacker_path)
-broadcasts = ilp_ndarray_str_eval(results.broadcasts)
+def ilp_array_tuple_eval(il_array):
+    il_array = il_array.replace("\n", "")
+    il_array = il_array.replace("        ", "")
+    il_array = il_array.replace(" {", ",{")
+    il_array = il_array.replace("{<", "(")
+    il_array = il_array.replace(">}", ")")
+    il_array = il_array.replace(" ", ",")
 
-# First of all convert the attacker moves and broadcasts into something sane
-attacker_moves_at_time = [results.attacker_edges[moves.index(1)] for moves in attacker_path]
+    return ast.literal_eval(il_array)
+
+def ilp_array_dicts_eval(il_array):
+    il_array = il_array.replace(" {", ",{")
+    il_array = il_array.replace("\n", ",")
+    il_array = il_array.replace("         ", " ")
+    il_array = il_array.replace("{", "[")
+    il_array = il_array.replace("}", "]")
+
+    return ast.literal_eval(il_array)
+
+if hasattr(results, "attacker_path"):
+    attacker_path = ilp_ndarray_str_eval(results.attacker_path)
+
+    attacker_moves_at_time = [results.attacker_edges[moves.index(1)] for moves in attacker_path]
+else:
+    attacker_moves_at_time = ilp_array_tuple_eval(results.used_edges)
+
+
 broadcasts_at_time = [set() for _ in attacker_moves_at_time]
 
-for (nid, mess_and_time) in enumerate(broadcasts, start=1):
-    for (mess, times) in enumerate(mess_and_time, start=1):
-        try:
-            time = times.index(1)
+if hasattr(results, "broadcasts"):
+    broadcasts = ilp_ndarray_str_eval(results.broadcasts)
 
-            broadcasts_at_time[time].add((nid, mess))
-        except ValueError:
-            pass
+    for (nid, mess_and_time) in enumerate(broadcasts, start=1):
+        for (mess, times) in enumerate(mess_and_time, start=1):
+            try:
+                time = times.index(1)
+
+                broadcasts_at_time[time].add((nid, mess))
+            except ValueError:
+                pass
+else:
+    broadcasts_by_nodes_at_time = ilp_array_dicts_eval(results.broadcasted_at)
+
+    for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
+        for (mess, times) in enumerate(bcasts_by_nid_at_time, start=1):
+            if len(times) == 1:
+                broadcasts_at_time[times[0]].add((nid, mess))
+            elif len(times) == 0:
+                pass
+            else:
+                raise RuntimeError("Invalid time size of {}".format(len(times)))
+
 
 attacker_positions = [v for (u, v) in attacker_moves_at_time]
 
