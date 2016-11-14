@@ -27,4 +27,4 @@ attacker_move_history = 0;
 source_period = 1; // seconds between messages
 safety_period = 9.0;
 
-slots_per_second = 5;
+slots_per_second = 9;
