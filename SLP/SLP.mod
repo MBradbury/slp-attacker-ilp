@@ -55,13 +55,14 @@ float Distance[i in Nodes][j in Nodes] =
 	     (Coordinates[i].y - Coordinates[j].y)^2);
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
-sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
-{int} Neighbours[i in Nodes] = { j | <i,j> in Edges : i != j };
+sorted {Edge} Edges with u in Nodes, v in Nodes = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
+{int} Neighbours[i in Nodes]  = { j | <i,j> in Edges : i != j };
 
-{Edge} SourceSelfEdges = { <u,v> | u,v in SourceIDs : u == v };
+//{Edge} SourceSelfEdges with u in SourceIDs, v in SourceIDs = { <u,v> | u,v in SourceIDs : u == v };
 
 // It will stay at the source node once it reaches it.
-sorted {Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
+sorted {Edge} AttackerEdges with u in Nodes, v in Nodes =
+                              { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 
@@ -76,6 +77,10 @@ dvar boolean attacker_path[Times][AttackerEdges];
 // Did the attacker move to n at t
 dexpr int attacker_moved_to_at[n in Nodes][t in Times] =
 	(sum (e in AttackerEdges : e.v == n) attacker_path[t][e]) == 1;
+
+// Did the attacker move to a neighbour of n at t
+dexpr int attacker_moved_to_neighbour_at[n in Nodes][t in Times] =
+	(sum (e in AttackerEdges : e.v in AttackerNeighbours[n]) attacker_path[t][e]) == 1;
 
 // Did the attacker do a self-self move at t
 dexpr int attacker_self_move[t in Times] =
@@ -157,10 +162,10 @@ subject to {
 	forall (n in Nodes)
 	  forall (m in Messages)
         forall (t in Times : t > 0)
-		  // If the attacker moved to a neighbour of n at t-1
-		  (sum (neigh in AttackerNeighbours[n]) attacker_moved_to_at[neigh][t-1]) == 1 &&
-		  // and node n sent m at t
+          // if node n sent m at t
 		  (broadcasts[n][m][t] == 1) &&
+		  // and the attacker moved to a neighbour of n at t-1
+		  (attacker_moved_to_neighbour_at[n][t-1] == 1) &&
 		  // and the attacker has never moved in response to m before
 		  (sum (t2 in Times : 0 < t2 < t) (attacker_moved_because_at[m][t2] == 1)) == 0
 		

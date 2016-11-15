@@ -55,13 +55,14 @@ float Distance[i in Nodes][j in Nodes] =
 	     (Coordinates[i].y - Coordinates[j].y)^2);
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
-sorted {Edge} Edges = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
+sorted {Edge} Edges with u in Nodes, v in Nodes = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
 {int} Neighbours[i in Nodes] = { j | <i,j> in Edges : i != j };
 
-{Edge} SourceSelfEdges = { <u,v> | u,v in SourceIDs : u == v };
+{Edge} SourceSelfEdges with u in SourceIDs, v in SourceIDs = { <u,v> | u,v in SourceIDs : u == v };
 
 // It will stay at the source node once it reaches it.
-sorted {Edge} AttackerEdges = { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
+sorted {Edge} AttackerEdges with u in Nodes, v in Nodes =
+                              { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 
