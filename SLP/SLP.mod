@@ -1,4 +1,4 @@
-//using CP;
+using CP;
 
 tuple Coords
 {
@@ -46,6 +46,7 @@ range Times = 0..max_time; // One tenth of a second
 int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
 range Messages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
+int num_messages = card(Messages);
 
 // Network constructs
 
@@ -198,6 +199,11 @@ subject to {
 
 execute
 {
-	writeln("Used edges=", Used)
-	writeln("Broadcasted at=", BroadcastsAt)
+	writeln("coords = ", Coordinates)
+	writeln("neighbours = ", Neighbours)
+	writeln("messages = ", num_messages)
+	writeln("slots_per_second = ", slots_per_second)
+
+	writeln("used_edges = \"\"\"", Used, "\"\"\"")
+	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"")
 }
