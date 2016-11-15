@@ -162,9 +162,15 @@ def animate(i):
 
     labels = nx.draw_networkx_labels(graph, pos, nx.get_node_attributes(graph, 'label'), font_size=16)
 
-    ax.annotate("Time Step {}, actual time is {:.3f} seconds\nResponded to {} messages".format(i, i/results.slots_per_second, attacker_responded_to), (0.1,-0.4)) # add text
+    anno_str = "Time Step {}, actual time is {:.3f} seconds\n".format(i, i/results.slots_per_second) + \
+               "Responded to {} messages".format(attacker_responded_to)
+    ax.annotate(anno_str, (0.1,-0.4)) # add text
 
-    legend_patches = [mpatches.Patch(color=colour, label='Msg {}'.format(msg)) for (colour, msg) in zip(message_colours, range(1, results.messages+1))]
+    legend_patches = [
+        mpatches.Patch(color=colour, label='Msg {}'.format(msg))
+        for (colour, msg)
+        in zip(message_colours, range(1, results.messages+1))
+    ]
     lgd = ax.legend(handles=legend_patches, loc=(-0.15,0.2))
 
 ani = animation.FuncAnimation(fig, animate, frames=time_steps,
