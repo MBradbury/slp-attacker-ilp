@@ -58,6 +58,13 @@ def ilp_array_dicts_eval(il_array):
 
     return ast.literal_eval(il_array)
 
+def ilp_array_msgs_eval(il_array):
+    il_array = il_array.replace("\n", ",")
+    il_array = il_array.replace("         ", "")
+    il_array = il_array.replace(" ", ",")
+
+    return ast.literal_eval(il_array)
+
 if hasattr(results, "attacker_path"):
     attacker_path = ilp_ndarray_str_eval(results.attacker_path)
 
@@ -79,7 +86,7 @@ if hasattr(results, "broadcasts"):
                 broadcasts_at_time[time].add((nid, mess))
             except ValueError:
                 pass
-else:
+elif hasattr(results, "broadcasted_at"):
     broadcasts_by_nodes_at_time = ilp_array_dicts_eval(results.broadcasted_at)
 
     for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
@@ -90,6 +97,16 @@ else:
                 pass
             else:
                 raise RuntimeError("Invalid time size of {}".format(len(times)))
+
+elif hasattr(results, "broadcasted_msg_at"):
+    broadcasts_by_nodes_at_time = ilp_array_msgs_eval(results.broadcasted_msg_at)
+
+    for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
+        for (time, mess) in enumerate(bcasts_by_nid_at_time, start=0):
+            if mess != 0:
+                broadcasts_at_time[time].add((nid, mess))
+else:
+    raise RuntimeError("Unknown broadcasted field")
 
 
 attacker_positions = [v for (u, v) in attacker_moves_at_time]
