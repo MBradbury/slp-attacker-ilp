@@ -126,7 +126,7 @@ subject to {
 	      (broadcasts[n][m][t1] == 1) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
-	ctR05: // Messages must reach the sink
+	ctR05: // Messages sent by source must reach the sink
 	forall (m in Messages)
 	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
 	

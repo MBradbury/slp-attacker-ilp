@@ -46,6 +46,7 @@ range Times = 0..max_time; // One tenth of a second
 int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
 range SourceMessages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
+int num_source_messages = card(SourceMessages);
 
 // Network constructs
 
@@ -106,14 +107,9 @@ subject to {
 	  forall (m in SourceMessages)
 	    broadcasts[n][((m - 1) * source_period_quantised) + 1] == m;
 	
-	/*ctR02: // No node sends more than one message concurrently
-	forall (t in Times)
-	  forall (n in Nodes)
-	    (sum (m in Messages) broadcasts[n][m][t]) <= 1;*/
-	
 	ctR03: // Once a message is sent by one node it is never sent by that node again
 	forall (n in Nodes)
-	  forall (t1 in Times)
+	  forall (t1 in Times : t1 > 0)
 	    (broadcasts[n][t1] != 0) => (sum (t2 in Times : t2 > t1) (broadcasts[n][t2] == broadcasts[n][t1])) == 0;
 	
 	ctR04: // Messages can only be forwarded after a neighbour has sent it
@@ -122,7 +118,7 @@ subject to {
 	      (broadcasts[n][t1] != 0) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[neigh][t2] == broadcasts[n][t1])) >= 1;
 	
-	ctR05: // Messages must reach the sink
+	ctR05: // Messages sent by source must reach the sink
 	forall (m in SourceMessages)
 	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) (broadcasts[n][t] == m)) >= 1;
 	
@@ -176,7 +172,7 @@ subject to {
 	ctA07: // Attacker does not move when no neighbours send a message (t > 0)
 	forall (t in Times : t > 0)
 	  forall (e in AttackerEdges)
-	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) broadcasts[n][t] != 0) == 0) =>
+	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) (broadcasts[n][t] != 0)) == 0) =>
 	      attacker_self_move[t] == 1;
 };
 
@@ -184,6 +180,11 @@ subject to {
 
 execute
 {
-	writeln("Used edges=", Used)
-	writeln("Broadcasted at=", broadcasts)
+	writeln("coords = ", Coordinates)
+	writeln("neighbours = ", Neighbours)
+	writeln("messages = ", num_source_messages)
+	writeln("slots_per_second = ", slots_per_second)
+
+	writeln("used_edges = \"\"\"", Used, "\"\"\"")
+	writeln("broadcasted_at = \"\"\"", broadcasts, "\"\"\"")
 }
