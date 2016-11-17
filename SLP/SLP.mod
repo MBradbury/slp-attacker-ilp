@@ -45,8 +45,13 @@ int max_time = ftoi(ceil(safety_period * slots_per_second));
 range Times = 0..max_time; // One tenth of a second
 int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
-range Messages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
-int num_messages = card(Messages);
+range SourceMessages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
+int num_normal_messages = card(SourceMessages);
+int num_fake_messages = ...;
+int num_total_messages = num_normal_messages + num_fake_messages;
+range FakeMessages = (num_normal_messages+1)..num_fake_messages;
+
+range AllMessages = 1..num_total_messages;
 
 // Network constructs
 
@@ -69,7 +74,7 @@ sorted {Edge} AttackerEdges with u in Nodes, v in Nodes =
 // Others
 
 // Which nodes broadcast which messages at which time.
-dvar boolean broadcasts[Nodes][Messages][Times];
+dvar boolean broadcasts[Nodes][AllMessages][Times];
 
 // What path does the attacker take
 dvar boolean attacker_path[Times][AttackerEdges];
@@ -87,10 +92,18 @@ dexpr int attacker_self_move[t in Times] =
 	(sum (e in AttackerEdges : e.u == e.v) attacker_path[t][e]) == 1;
 
 // Did the attacker move because of the message m at t
-dexpr int attacker_moved_because_at[m in Messages][t in Times] =
+dexpr int attacker_moved_because_at[m in AllMessages][t in Times] =
 	(sum (e in AttackerEdges : e.u != e.v)
 		(attacker_path[t][e] == 1 && broadcasts[e.v][m][t] == 1)) == 1;
 
+dexpr int node_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Times] =
+	broadcasts[n][m][t] == 1 &&
+	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) == 0;
+
+dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Times] =
+	broadcasts[n][m][t] == 1 &&
+	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) >= 1;
+	
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
   
@@ -105,35 +118,50 @@ subject to {
 
 	ctR00: // No messages are sent at t=0
 	forall (n in Nodes)
-	  forall (m in Messages)
+	  forall (m in AllMessages)
 	    broadcasts[n][m][0] == 0;
 	
 	ctR01: // When do source nodes send messages
 	forall (n in SourceIDs)
-	  forall (m in Messages)
+	  forall (m in SourceMessages)
 	    broadcasts[n][m][((m - 1) * source_period_quantised) + 1] == 1;
 	
 	ctR02: // No node sends more than one message concurrently
 	forall (t in Times : t > 0) // Optimisation as t=0 no messages are sent
 	  forall (n in Nodes)
-	    (sum (m in Messages) broadcasts[n][m][t]) <= 1;
+	    (sum (m in AllMessages) broadcasts[n][m][t]) <= 1;
 	
 	ctR03: // Once a message is sent by one node it is never sent by that node again
-	forall (m in Messages)
+	forall (m in AllMessages)
 	  forall (n in Nodes)
 	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][m][t1] == 1) => (sum (t2 in Times : t2 > t1) broadcasts[n][m][t2]) == 0;
 	
-	ctR04: // Messages can only be forwarded after a neighbour has sent it
+	ctR04: // Source Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
-	  forall (m in Messages)
+	  forall (m in SourceMessages)
 	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][m][t1] == 1) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
 	ctR05: // Messages sent by source must reach the sink
-	forall (m in Messages)
+	forall (m in SourceMessages)
 	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
+	
+	ctF01: // Once a fake messages has been generated at one node, it will never be generated at another node
+	forall (n1 in Nodes)
+	  forall (t1 in Times : t1 > 0)
+	    forall (m in FakeMessages)
+	    	(node_generated_fake_message_at[n1][m][t1] == 1) =>
+	    		(sum (n2 in Nodes) sum (t2 in Times : t2 > t1)
+	    			(node_generated_fake_message_at[n2][m][t2] == 1)) == 0;
+	
+	ctF02: // Fake Messages can only be forwarded after a neighbour has sent it
+	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they do not send fake messages
+	    forall (t1 in Times : t1 > 0)
+	      forall (m in FakeMessages)
+	      	(broadcasts[n][m][t1] == 1 && node_generated_fake_message_at[n][m][t1] == 0) => 
+	      		(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[n][m][t1])) >= 1;
 	
 	// The first attacker move at the special time t=0 is the self-self move.
 	ctA01:
@@ -155,12 +183,12 @@ subject to {
 	    // If an attacker moves to n at t
 	    ((sum (e in AttackerEdges : e.v == n && e.u != e.v) attacker_path[t][e]) == 1) =>
 	      // Then it must be because n broadcasted m
-	      (sum (m in Messages) broadcasts[n][m][t]) == 1;
+	      (sum (m in AllMessages) broadcasts[n][m][t]) == 1;
 	  	
 	// The attacker only moves when a message is sent and that message has not been previously responded to
 	ctA05: // Attacker can only move in response to sent messages
 	forall (n in Nodes)
-	  forall (m in Messages)
+	  forall (m in AllMessages)
         forall (t in Times : t > 0)
           // if node n sent m at t
 		  (broadcasts[n][m][t] == 1) &&
@@ -174,7 +202,7 @@ subject to {
 		  
 	ctA06: // Attacker only moves once per message
 	forall (t1 in Times : t1 > 0)
-	  forall (m in Messages)
+	  forall (m in AllMessages)
 	    // If at t1 the attacker moved in response to the message m
 	    attacker_moved_because_at[m][t1] == 1 =>
 	      // Then at no subsequent time can the attacker move in response to m again
@@ -183,7 +211,7 @@ subject to {
 	ctA07: // Attacker does not move when no neighbours send a message (t > 0)
 	forall (t in Times : t > 0)
 	  forall (e in AttackerEdges)
-	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) sum (m in Messages) broadcasts[n][m][t]) == 0) =>
+	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) sum (m in AllMessages) broadcasts[n][m][t]) == 0) =>
 	      attacker_self_move[t] == 1;
 	
 	/*ctA08: // The attacker does not move back to the attacker_move_history previous locations
@@ -200,13 +228,15 @@ subject to {
 
 {Edge} Used[t in Times] = {e | e in AttackerEdges : attacker_path[t][e] == 1};
 
-{int} BroadcastsAt[n in Nodes][m in Messages] = {t | t in Times : broadcasts[n][m][t] == 1};
+{int} BroadcastsAt[n in Nodes][m in AllMessages] = {t | t in Times : broadcasts[n][m][t] == 1};
 
 execute
 {
 	writeln("coords = ", Coordinates)
 	writeln("neighbours = ", Neighbours)
-	writeln("messages = ", num_messages)
+	writeln("normal_messages = ", num_normal_messages)
+	writeln("fake_messages = ", num_fake_messages)
+	writeln("messages = ", num_total_messages)
 	writeln("slots_per_second = ", slots_per_second)
 
 	writeln("used_edges = \"\"\"", Used, "\"\"\"")

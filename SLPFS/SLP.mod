@@ -46,7 +46,16 @@ range Times = 0..max_time; // One tenth of a second
 int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
 range SourceMessages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
+{int} SourceMessagesSet = asSet(SourceMessages);
 int num_source_messages = card(SourceMessages);
+
+int num_fake_messages = ...;
+int num_total_messages = num_source_messages + num_fake_messages;
+
+range FakeMessages = (num_source_messages+1)..num_total_messages;
+{int} FakeMessagesSet = asSet(FakeMessages);
+
+range AllMessages = 1..num_total_messages;
 
 // Network constructs
 
@@ -69,7 +78,7 @@ sorted {Edge} AttackerEdges with u in Nodes, v in Nodes =
 // Others
 
 // Which nodes broadcast which messages at which time.
-dvar int broadcasts[Nodes][Times] in 0..card(SourceMessages);
+dvar int broadcasts[Nodes][Times] in 0..num_total_messages;
 
 // What path does the attacker take
 dvar boolean attacker_path[Times][AttackerEdges];
@@ -86,6 +95,10 @@ dexpr int attacker_self_move[t in Times] =
 dexpr int attacker_moved_because_at[n in Nodes][t1 in Times][t in Times] =
 	(sum (e in AttackerEdges : e.u != e.v)
 		(attacker_path[t][e] == 1 && broadcasts[e.v][t] == broadcasts[n][t1])) == 1;
+
+dexpr int node_generated_fake_message_at[n in Nodes][t in Times] =
+	broadcasts[n][t] in FakeMessagesSet &&
+	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][t2] == broadcasts[n][t])) == 0;
 
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
@@ -113,15 +126,28 @@ subject to {
 	  forall (t1 in Times : t1 > 0)
 	    (broadcasts[n][t1] != 0) => (sum (t2 in Times : t2 > t1) (broadcasts[n][t2] == broadcasts[n][t1])) == 0;
 	
-	ctR04: // Messages can only be forwarded after a neighbour has sent it
+	ctR04: // Source Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
 	    forall (t1 in Times : t1 > 0)
-	      (broadcasts[n][t1] != 0) => 
+	      (broadcasts[n][t1] in SourceMessagesSet) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[neigh][t2] == broadcasts[n][t1])) >= 1;
 	
 	ctR05: // Messages sent by source must reach the sink
 	forall (m in SourceMessages)
 	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) (broadcasts[n][t] == m)) >= 1;
+	
+	ctF01: // Once a fake messages has been generated at one node, it will never be generated at another node
+	forall (n1 in Nodes)
+	  forall (t1 in Times : t1 > 0)
+	    node_generated_fake_message_at[n1][t1] == 1 =>
+	    	(sum (n2 in Nodes) sum (t2 in Times : t2 > t1)
+	    		(broadcasts[n1][t1] == broadcasts[n2][t2] && node_generated_fake_message_at[n2][t2] == 1)) == 0;
+	
+	ctF02: // Fake Messages can only be forwarded after a neighbour has sent it
+	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they do not send fake messages
+	    forall (t1 in Times : t1 > 0)
+	      (broadcasts[n][t1] in FakeMessagesSet && node_generated_fake_message_at[n][t1] == 0) => 
+	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[neigh][t2] == broadcasts[n][t1])) >= 1;
 	
 	// The first attacker move at the special time t=0 is the self-self move.
 	ctA01:
