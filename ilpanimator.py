@@ -116,7 +116,7 @@ time_steps = len(attacker_moves_at_time)
 def get_cmap(N):
     '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
     RGBA color.'''
-    color_norm  = colors.Normalize(vmin=0, vmax=N-1)
+    color_norm  = colors.Normalize(vmin=0, vmax=N)
     scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
     def map_index_to_rgb_color(index):
         return scalar_map.to_rgba(index)
@@ -126,6 +126,15 @@ colour_map = get_cmap(results.messages)
 
 attacker_colour = "red"
 message_colours = [str(colors.rgb2hex(colour_map(i))) for i in range(results.messages)]
+
+def msg_label(num):
+    if hasattr(results, "fake_messages"):
+        if num > results.normal_messages:
+            return "FMsg"
+        else:
+            return "Msg"
+    else:
+        return "Msg"
 
 #------------------------------------------------------------
 # set up figure and animation
@@ -167,7 +176,7 @@ def animate(i):
     ax.annotate(anno_str, (0.1,-0.4)) # add text
 
     legend_patches = [
-        mpatches.Patch(color=colour, label='Msg {}'.format(msg))
+        mpatches.Patch(color=colour, label=msg_label(msg) + ' {}'.format(msg))
         for (colour, msg)
         in zip(message_colours, range(1, results.messages+1))
     ]
