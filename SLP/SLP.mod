@@ -12,6 +12,13 @@ tuple Edge
 	int v;
 }
 
+tuple Message
+{
+	int src;
+	int msg;
+	int fake;
+}
+
 // Network
 int num_nodes = ...; // Number of nodes in the network
 float comms_range = ...; // The range of the nodes
@@ -19,7 +26,6 @@ float comms_range = ...; // The range of the nodes
 int sink_id = ...;
 
 range Nodes = 1..num_nodes;
-//{int} NodeSet = asSet(Nodes);
 
 assert sink_id in Nodes;
 assert forall (source_id in SourceIDs) source_id in Nodes;
@@ -45,13 +51,16 @@ int max_time = ftoi(ceil(safety_period * slots_per_second));
 range Times = 0..max_time; // One tenth of a second
 int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
-range SourceMessages = 1..ftoi(ceil(safety_period * source_period)); // Number of messages the source sends
-int num_normal_messages = card(SourceMessages);
-int num_fake_messages = ...;
-int num_total_messages = num_normal_messages + num_fake_messages;
-range FakeMessages = (num_normal_messages+1)..num_total_messages;
+int num_normal_messages_per_source = ftoi(ceil(safety_period * source_period));
+int num_normal_messages = num_normal_messages_per_source * card(SourceIDs);
 
-range AllMessages = 1..num_total_messages;
+int num_fake_messages = ...;
+
+sorted {Message} SourceMessages = { <s,m,0> | s in SourceIDs, m in 1..num_normal_messages_per_source };
+sorted {Message} FakeMessages = { <0,m,1> | m in 1..num_fake_messages };
+sorted {Message} AllMessages = SourceMessages union FakeMessages;
+
+int num_total_messages = num_normal_messages + num_fake_messages;
 
 // Network constructs
 
@@ -123,8 +132,8 @@ subject to {
 	
 	ctR01: // When do source nodes send messages
 	forall (n in SourceIDs)
-	  forall (m in SourceMessages)
-	    broadcasts[n][m][((m - 1) * source_period_quantised) + 1] == 1;
+	  forall (m in SourceMessages : m.src == n)
+	    broadcasts[n][m][((m.msg - 1) * source_period_quantised) + 1] == 1;
 	
 	ctR02: // No node sends more than one message concurrently
 	forall (t in Times : t > 0) // Optimisation as t=0 no messages are sent

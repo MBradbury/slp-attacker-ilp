@@ -32,6 +32,7 @@ for (nid, nid_neighbours) in results.neighbours.items():
     graph.add_edges_from((nid, n) for n in nid_neighbours)
 
 def ilp_ndarray_str_eval(il_array):
+    il_array = il_array.strip()
     il_array = il_array.replace("\n", " ")
     il_array = il_array.replace("0 ", "0, ")
     il_array = il_array.replace("1 ", "1, ")
@@ -40,6 +41,7 @@ def ilp_ndarray_str_eval(il_array):
     return ast.literal_eval(il_array[:-1])
 
 def ilp_array_tuple_eval(il_array):
+    il_array = il_array.strip()
     il_array = il_array.replace("\n", "")
     il_array = il_array.replace("        ", "")
     il_array = il_array.replace(" {", ",{")
@@ -50,6 +52,7 @@ def ilp_array_tuple_eval(il_array):
     return ast.literal_eval(il_array)
 
 def ilp_array_dicts_eval(il_array):
+    il_array = il_array.strip()
     il_array = il_array.replace(" {", ",{")
     il_array = il_array.replace("\n", ",")
     il_array = il_array.replace("         ", " ")
@@ -59,6 +62,7 @@ def ilp_array_dicts_eval(il_array):
     return ast.literal_eval(il_array)
 
 def ilp_array_msgs_eval(il_array):
+    il_array = il_array.strip()
     il_array = il_array.replace("\n", ",")
     il_array = il_array.replace("         ", "")
     il_array = il_array.replace(" ", ",")
