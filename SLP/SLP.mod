@@ -16,7 +16,6 @@ tuple Message
 {
 	int src;
 	int msg;
-	int fake;
 }
 
 // Network
@@ -35,7 +34,7 @@ Coords Coordinates[i in Nodes] = ...;
 // Attacker
 int attacker_start_pos = ...; // The id of the node the attacker starts at
 float attacker_range = ...; // The distance the attacker can hear messages from
-int attacker_move_history = ...; // The number of previous moves the attacker will consider when making the next move
+//int attacker_move_history = ...; // The number of previous moves the attacker will consider when making the next move
 
 assert attacker_start_pos in Nodes;
 
@@ -53,14 +52,12 @@ int source_period_quantised = ftoi(ceil(source_period * slots_per_second));
 
 int num_normal_messages_per_source = ftoi(ceil(safety_period * source_period));
 int num_normal_messages = num_normal_messages_per_source * card(SourceIDs);
-
 int num_fake_messages = ...;
-
-sorted {Message} SourceMessages = { <s,m,0> | s in SourceIDs, m in 1..num_normal_messages_per_source };
-sorted {Message} FakeMessages = { <0,m,1> | m in 1..num_fake_messages };
-sorted {Message} AllMessages = SourceMessages union FakeMessages;
-
 int num_total_messages = num_normal_messages + num_fake_messages;
+
+sorted {Message} SourceMessages = { <s,m> | s in SourceIDs, m in 1..num_normal_messages_per_source };
+sorted {Message} FakeMessages = { <num_nodes+1,m> | m in 1..num_fake_messages };
+sorted {Message} AllMessages = SourceMessages union FakeMessages;
 
 // Network constructs
 
@@ -69,13 +66,13 @@ float Distance[i in Nodes][j in Nodes] =
 	     (Coordinates[i].y - Coordinates[j].y)^2);
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
-sorted {Edge} Edges with u in Nodes, v in Nodes = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
+{Edge} Edges with u in Nodes, v in Nodes = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
 {int} Neighbours[i in Nodes]  = { j | <i,j> in Edges : i != j };
 
 //{Edge} SourceSelfEdges with u in SourceIDs, v in SourceIDs = { <u,v> | u,v in SourceIDs : u == v };
 
 // It will stay at the source node once it reaches it.
-sorted {Edge} AttackerEdges with u in Nodes, v in Nodes =
+{Edge} AttackerEdges with u in Nodes, v in Nodes =
                               { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
