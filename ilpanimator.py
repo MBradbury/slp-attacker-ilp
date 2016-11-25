@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 
-import ast
-import importlib
 import sys
 
 import networkx as nx
@@ -10,88 +8,74 @@ import numpy as np
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
-import matplotlib.cm as cmx
-import matplotlib.colors as colors
 import matplotlib.patches as mpatches
 
 from results.parser import Results
 
 results_name = sys.argv[1]
 
-r = Results(results_name)
+class ILPAnimator(object):
+    def __init__(self, results_name):
+        self.attacker_responded_to = []
 
-def get_cmap(N):
-    '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
-    RGBA color.'''
-    color_norm  = colors.Normalize(vmin=0, vmax=N)
-    scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
-    def map_index_to_rgb_color(index):
-        return scalar_map.to_rgba(index)
-    return map_index_to_rgb_color
+        self.r = Results(results_name)
 
-colour_map = get_cmap(r.results.messages)
+        self.attacker_colour = "red"
+        self.message_colours = self.r.message_colours()
 
-attacker_colour = "red"
-message_colours = [str(colors.rgb2hex(colour_map(i))) for i in range(r.results.messages)]
+        self.width = (2 + 1 + max(x for (x,y) in self.r.results.coords)) * 2.25
+        self.height = (1 + max(y for (x,y) in self.r.results.coords)) * 2.25
 
-def msg_label(num):
-    if hasattr(r.results, "fake_messages"):
-        if num > r.results.normal_messages:
-            return "FMsg"
-        else:
-            return "Msg"
-    else:
-        return "Msg"
+        self.fig = plt.figure(figsize=(self.width, self.height))
 
-#------------------------------------------------------------
-# set up figure and animation
-fig = plt.gcf() 
+    def init(self):
+        self.attacker_responded_to = []
 
-pos = nx.get_node_attributes(r.graph, 'pos')
+    def animate(self, step):
+        r = self.r
+        fig = self.fig
 
-def init():
-    global attacker_responded_to
-    attacker_responded_to = []
+        fig.clf()
 
-def animate(i):
-    global attacker_responded_to
-    fig.clf()
+        ax = fig.gca()
+        ax.axis("equal")
+        
+        attacker_at_node = r.attacker_positions[step]
 
-    ax = fig.gca()
-    #ax.axis("equal")
-    
-    attacker_at_node = r.attacker_positions[i]
+        # When the attacker is on a node set it to red
+        colours = ["w"] * len(r.results.coords)
+        colours[attacker_at_node-1] = self.attacker_colour
 
-    # When the attacker is on a node set it to red
-    colours = ["w"] * len(r.results.coords)
-    colours[attacker_at_node-1] = attacker_colour
+        # Draw circles behind nodes when broadcasting
+        for (nid, msg) in r.broadcasts_at_time[step]:
+            c = mpatches.Circle(r.results.coords[nid-1], radius=0.25, color=self.message_colours[msg-1], label=msg)
+            ax.add_patch(c)
 
-    # Draw circles behind nodes when broadcasting
-    for (nid, msg) in r.broadcasts_at_time[i]:
-        c = plt.Circle(r.results.coords[nid-1], radius=0.25, color=message_colours[msg-1], label=msg)
-        ax.add_patch(c)
+            if step > 0 and r.attacker_positions[step] != r.attacker_positions[step-1] and attacker_at_node == nid:
+                self.attacker_responded_to.append(msg)
 
-        if i > 0 and r.attacker_positions[i] != r.attacker_positions[i-1] and attacker_at_node == nid:
-            attacker_responded_to.append(msg)
+        pos = nx.get_node_attributes(self.r.graph, 'pos')
 
-    # Draw the graph
-    nx.draw(r.graph, pos, node_size=750, node_color=colours)
+        # Draw the graph
+        nx.draw(r.graph, pos,
+                node_size=750, node_color=colours,
+                labels=nx.get_node_attributes(r.graph, 'label'), font_size=16)
 
-    labels = nx.draw_networkx_labels(r.graph, pos, nx.get_node_attributes(r.graph, 'label'), font_size=16)
+        anno_str = "Time Step {}, actual time is {:.3f} seconds\n".format(step, step/r.results.slots_per_second) + \
+                   "Responded to {} messages".format(self.attacker_responded_to)
+        ax.annotate(anno_str, (0,-0.5)) # add text
 
-    anno_str = "Time Step {}, actual time is {:.3f} seconds\n".format(i, i/r.results.slots_per_second) + \
-               "Responded to {} messages".format(attacker_responded_to)
-    ax.annotate(anno_str, (0.1,-0.4)) # add text
+        legend_patches = [
+            mpatches.Patch(color=colour, label=r.msg_label(msg) + ' {}'.format(msg))
+            for (colour, msg)
+            in zip(self.message_colours, range(1, r.results.messages+1))
+        ]
+        lgd = ax.legend(handles=legend_patches, loc=(0, 0.5))
 
-    legend_patches = [
-        mpatches.Patch(color=colour, label=msg_label(msg) + ' {}'.format(msg))
-        for (colour, msg)
-        in zip(message_colours, range(1, r.results.messages+1))
-    ]
-    lgd = ax.legend(handles=legend_patches, loc=(-0.15,0.2))
+anim = ILPAnimator(results_name)
 
-ani = animation.FuncAnimation(fig, animate, frames=r.time_steps,
-                              interval=2500, blit=False, init_func=init,
+ani = animation.FuncAnimation(anim.fig, anim.animate, frames=anim.r.time_steps,
+                              interval=2500, blit=False, init_func=anim.init,
                               repeat=True, repeat_delay=2500)
 
 
@@ -100,7 +84,7 @@ ani = animation.FuncAnimation(fig, animate, frames=r.time_steps,
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-ani.save('{}.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
-ani.save('{}.gif'.format(results_name), writer='imagemagick')
+#ani.save('{}.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
+#ani.save('{}.gif'.format(results_name), writer='imagemagick')
 
 plt.show()

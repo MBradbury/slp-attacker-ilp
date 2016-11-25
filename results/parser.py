@@ -3,6 +3,9 @@ from __future__ import print_function, division
 import ast
 import importlib
 
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+
 import networkx as nx
 
 def ilp_ndarray_str_eval(il_array):
@@ -110,3 +113,26 @@ class Results(object):
         self.attacker_positions = [v for (u, v) in self.attacker_moves_at_time]
 
         self.time_steps = len(self.attacker_moves_at_time)
+
+    def get_cmap(self):
+        '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
+        RGBA color.'''
+        N = self.results.messages
+        color_norm  = colors.Normalize(vmin=0, vmax=N)
+        scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
+        def map_index_to_rgb_color(index):
+            return scalar_map.to_rgba(index)
+        return map_index_to_rgb_color
+
+    def message_colours(self):
+        colour_map = self.get_cmap()
+        return [str(colors.rgb2hex(colour_map(i))) for i in range(self.results.messages)]
+
+    def msg_label(self, num):
+        if hasattr(self.results, "fake_messages"):
+            if num > self.results.normal_messages:
+                return "FMsg"
+            else:
+                return "Msg"
+        else:
+            return "Msg"
