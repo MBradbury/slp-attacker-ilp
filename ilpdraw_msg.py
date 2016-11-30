@@ -43,8 +43,10 @@ class ILPMessageDrawer(object):
     def draw_all(self):
 
         num_messages = self.r.results.messages
-        x = math.floor(math.sqrt(num_messages))
-        y = math.ceil(math.sqrt(num_messages))
+        x = math.floor(math.sqrt(num_messages+1))
+        y = math.ceil(num_messages / x)
+
+        print(x, y, num_messages)
 
         for msg in range(1, num_messages+1):
 
@@ -55,7 +57,7 @@ class ILPMessageDrawer(object):
         ax.axis("off")
         self.draw_legend(ax)
 
-        plt.savefig('{}.png'.format(self.results_name))
+        plt.savefig('{}.pdf'.format(self.results_name))
 
         plt.show()
 
@@ -83,8 +85,8 @@ class ILPMessageDrawer(object):
         pos = nx.get_node_attributes(graph, 'pos')
 
         nx.draw(graph, pos,
-                node_size=600, node_color=["w"] * len(pos),
-                labels=nx.get_node_attributes(graph, 'label'), font_size=16,
+                node_size=250, node_color=["w"] * len(pos),
+                labels=nx.get_node_attributes(graph, 'label'), font_size=12,
                 edge_color=self.message_colours[msg-1], width=3.0, arrows=True)
         nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)
 
