@@ -25,9 +25,14 @@ class ILPMessageDrawer(object):
 
         for (time, nid_and_msgs) in enumerate(self.r.broadcasts_at_time):
             for (nid, msg) in nid_and_msgs:
+
+                print(msg)
+
                 real_moves[msg].append(TimeNid(time, nid))
 
         self.real_moves = dict(real_moves)
+
+        print(self.real_moves)
 
         self.message_colours = self.r.message_colours()
 
@@ -62,7 +67,7 @@ class ILPMessageDrawer(object):
         plt.show()
 
     def draw_subplot(self, msg):
-        real_moves_to_show = self.real_moves[msg]
+        real_moves_to_show = self.real_moves.get(msg, tuple())
 
         message_colours = self.r.message_colours()
 
