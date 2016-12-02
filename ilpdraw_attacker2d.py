@@ -31,8 +31,6 @@ ax.plot(x, t, label="attacker path")
 ax.scatter(x, t, c='b', marker='o')
 ax.legend()
 
-print(dir(ax))
-
 ax.set_xlabel("Node ID")
 ax.set_ylabel("time")
 
