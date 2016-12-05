@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 
-from collections import defaultdict
+import argparse
+import os
 import sys
 
 import networkx as nx
@@ -12,9 +13,12 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from results.parser import Results
 
-results_name = sys.argv[1]
+parser = argparse.ArgumentParser(description="ILP Draw Attacker 3D", add_help=True)
+parser.add_argument("results")
 
-r = Results(results_name)
+args = parser.parse_args(sys.argv[1:])
+
+r = Results(args.results)
 
 moves = []
 
@@ -49,6 +53,9 @@ nx.draw_networkx_nodes(r.graph, ax=ax, pos=pos)
 #nx.draw_networkx_edges(dg, pos=pos, edgelist=real_moves.keys(), edge_color="red", arrows=True)
 #nx.draw_networkx_edge_labels(dg, pos=pos, edge_labels=real_moves)
 
-#plt.savefig('this.png')
+if not os.path.exists('out'):
+    os.makedirs('out')
+
+plt.savefig('out/{}_attacker3d.pdf'.format(args.results))
 
 plt.show()

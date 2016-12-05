@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 
+import os
 import sys
 
 import networkx as nx
@@ -78,13 +79,15 @@ ani = animation.FuncAnimation(anim.fig, anim.animate, frames=anim.r.time_steps,
                               interval=2500, blit=False, init_func=anim.init,
                               repeat=True, repeat_delay=2500)
 
+if not os.path.exists('out'):
+    os.makedirs('out')
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-#ani.save('{}.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
-#ani.save('{}.gif'.format(results_name), writer='imagemagick')
+ani.save('out/{}_anim.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
+#ani.save('out/{}_anim.gif'.format(results_name), writer='imagemagick')
 
 plt.show()

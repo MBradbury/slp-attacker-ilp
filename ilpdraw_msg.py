@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 from collections import defaultdict, namedtuple, OrderedDict
 import math
+import os
 import sys
 
 import networkx as nx
@@ -25,9 +26,6 @@ class ILPMessageDrawer(object):
 
         for (time, nid_and_msgs) in enumerate(self.r.broadcasts_at_time):
             for (nid, msg) in nid_and_msgs:
-
-                print(msg)
-
                 real_moves[msg].append(TimeNid(time, nid))
 
         self.real_moves = dict(real_moves)
@@ -36,33 +34,29 @@ class ILPMessageDrawer(object):
 
         self.message_colours = self.r.message_colours()
 
-    def draw_legend(self, ax):
-        num_messages = self.r.results.messages
-        legend_patches = [
-            mpatches.Patch(color=colour, label=self.r.msg_label(msg) + ' {}'.format(msg))
-            for (colour, msg)
-            in zip(self.message_colours, range(1, num_messages+1))
-        ]
-        lgd = ax.legend(handles=legend_patches, loc="center")
-
     def draw_all(self):
 
         num_messages = self.r.results.messages
-        x = math.floor(math.sqrt(num_messages+1))
+        x = math.floor(math.sqrt(num_messages))
         y = math.ceil(num_messages / x)
 
         print(x, y, num_messages)
 
+        plt.figure(figsize=(20.0, 12.0))
+
         for msg in range(1, num_messages+1):
 
-            plt.subplot(x, y, msg)
+            ax = plt.subplot(x, y, msg)
+            ax.set_aspect("equal")
+            ax.set_title("Message {}".format(msg))
             self.draw_subplot(msg)
 
-        ax = plt.subplot(x, y, msg+1)
-        ax.axis("off")
-        self.draw_legend(ax)
+        plt.tight_layout()
 
-        plt.savefig('{}.pdf'.format(self.results_name))
+        if not os.path.exists('out'):
+            os.makedirs('out')
+
+        plt.savefig('out/{}_msg.pdf'.format(self.results_name))
 
         plt.show()
 
@@ -78,10 +72,10 @@ class ILPMessageDrawer(object):
 
         edges = OrderedDict()
 
-        for (time, nid) in real_moves_to_show:
+        for (time_slot, nid) in real_moves_to_show:
             for neigh in self.r.graph.neighbors(nid):
                 if (neigh, nid) not in edges:
-                    edges[(nid, neigh)] = time
+                    edges[(nid, neigh)] = time_slot
 
         graph.add_edges_from((x, y) for (x, y) in edges.keys())
 
@@ -90,9 +84,9 @@ class ILPMessageDrawer(object):
         pos = nx.get_node_attributes(graph, 'pos')
 
         nx.draw(graph, pos,
-                node_size=250, node_color=["w"] * len(pos),
-                labels=nx.get_node_attributes(graph, 'label'), font_size=12,
-                edge_color=self.message_colours[msg-1], width=3.0, arrows=True)
+                node_color=["w"] * len(pos),
+                labels=nx.get_node_attributes(graph, 'label'),
+                edge_color=self.message_colours[msg-1], width=3.5, arrows=True)
         nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)
 
 results_name = sys.argv[1]

@@ -2,14 +2,13 @@
 from __future__ import print_function, division
 
 import argparse
+import os
 import sys
 
 import matplotlib.pyplot as plt
 import networkx as nx
 
 from results.parser import Results
-
-results_name = sys.argv[1]
 
 parser = argparse.ArgumentParser(description="ILP Draw Attacker 2D", add_help=True)
 parser.add_argument("results")
@@ -61,7 +60,9 @@ else:
 ax.set_ylabel("Time (seconds)")
 ax.set_ylim(bottom=0)
 
+if not os.path.exists('out'):
+    os.makedirs('out')
 
-#plt.savefig('this.png')
+plt.savefig('out/{}_attacker2d.pdf'.format(args.results))
 
 plt.show()
