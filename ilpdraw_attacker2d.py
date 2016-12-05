@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 import argparse
 import os
+import subprocess
 import sys
 
 import matplotlib.pyplot as plt
@@ -62,7 +63,10 @@ class ILPAttackerDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        plt.savefig('out/{}_attacker2d.pdf'.format(self.results_name.replace(".", "_")))
+        file = 'out/{}_attacker2d.pdf'.format(self.results_name.replace(".", "_"))
+        plt.savefig(file)
+
+        subprocess.check_call(["pdfcrop", file, file])
 
         if show:
             plt.show()

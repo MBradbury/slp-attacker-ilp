@@ -5,6 +5,7 @@ import argparse
 from collections import defaultdict, namedtuple, OrderedDict
 import math
 import os
+import subprocess
 import sys
 
 import networkx as nx
@@ -43,7 +44,7 @@ class ILPMessageDrawer(object):
 
         print(x, y, num_messages)
 
-        plt.figure(figsize=(20.0, 12.0))
+        plt.figure(figsize=(18.0, 12.0))
 
         for msg in range(1, num_messages+1):
 
@@ -57,7 +58,10 @@ class ILPMessageDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        plt.savefig('out/{}_msg.pdf'.format(self.results_name.replace(".", "_")))
+        file = 'out/{}_msg.pdf'.format(self.results_name.replace(".", "_"))
+        plt.savefig(file)
+
+        subprocess.check_call(["pdfcrop", file, file])
 
         if show:
             plt.show()
