@@ -25,6 +25,8 @@ neighbours = {
     16: {12, 15},
 }
 
+sources = {1}
+
 messages = 7
 
 slots_per_second = 7

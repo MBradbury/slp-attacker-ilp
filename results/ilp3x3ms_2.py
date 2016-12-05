@@ -17,6 +17,8 @@ neighbours = {
     9: {6, 8},
 }
 
+sources = {1,3}
+
 normal_messages = 10
 fake_messages = 0
 messages = 10

@@ -35,6 +35,8 @@ neighbours =  {
     25: {20, 24},
 }
 
+sources = {1}
+
 
 normal_messages = 5
 fake_messages = 0

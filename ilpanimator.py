@@ -13,8 +13,6 @@ import matplotlib.patches as mpatches
 
 from results.parser import Results
 
-results_name = sys.argv[1]
-
 class ILPAnimator(object):
     def __init__(self, results_name):
         self.attacker_responded_to = []
@@ -73,6 +71,8 @@ class ILPAnimator(object):
         ]
         lgd = ax.legend(handles=legend_patches, loc=(0, 0.5))
 
+results_name = sys.argv[1]
+
 anim = ILPAnimator(results_name)
 
 ani = animation.FuncAnimation(anim.fig, anim.animate, frames=anim.r.time_steps,
@@ -87,7 +87,7 @@ if not os.path.exists('out'):
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-ani.save('out/{}_anim.mp4'.format(results_name), extra_args=['-vcodec', 'libx264'])
-#ani.save('out/{}_anim.gif'.format(results_name), writer='imagemagick')
+ani.save('out/{}_anim.mp4'.format(results_name.replace(".", "_")), extra_args=['-vcodec', 'libx264'])
+#ani.save('out/{}_anim.gif'.format(results_name.replace(".", "_")), writer='imagemagick')
 
 plt.show()

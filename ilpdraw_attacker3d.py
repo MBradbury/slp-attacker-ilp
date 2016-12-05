@@ -13,49 +13,70 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from results.parser import Results
 
+class ILPAttackerDrawer(object):
+    def __init__(self, results_name):
+        self.results_name = results_name
+
+        self.r = Results(results_name)
+
+        moves = []
+
+        for (time, pair) in enumerate(self.r.attacker_moves_at_time):
+            if time == 0:
+                (x, y) = self.r.results.coords[pair[0]-1]
+
+                moves.append((x, y, time))
+
+            if pair[0] != pair[1]:
+                (x, y) = self.r.results.coords[pair[1]-1]
+
+                moves.append((x, y, time))
+
+        print(moves)
+
+        self.moves = moves
+
+    def draw(self, show=True):
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+
+        x, y, t = zip(*self.moves)
+
+        ax.plot(x, y, t, label="attacker path")
+        ax.scatter(x, y, t, c='b', marker='o')
+        ax.legend()
+
+        ax.set_zlabel("time")
+
+        pos = nx.get_node_attributes(self.r.graph, 'pos')
+        nx.draw_networkx_nodes(self.r.graph, ax=ax, pos=pos)
+        #nx.draw_networkx_labels(r.graph, ax=ax, pos=pos)
+
+        #nx.draw_networkx_edges(dg, pos=pos, edgelist=real_moves.keys(), edge_color="red", arrows=True)
+        #nx.draw_networkx_edge_labels(dg, pos=pos, edge_labels=real_moves)
+
+        if not os.path.exists('out'):
+            os.makedirs('out')
+
+        plt.savefig('out/{}_attacker3d.pdf'.format(self.results_name.replace(".", "_")))
+
+        if show:
+            plt.show()
+
+
 parser = argparse.ArgumentParser(description="ILP Draw Attacker 3D", add_help=True)
-parser.add_argument("results")
+parser.add_argument("--results", metavar="R", nargs="+")
+parser.add_argument("--no-show", action='store_true', default=False)
 
 args = parser.parse_args(sys.argv[1:])
 
-r = Results(args.results)
+for result in args.results:
+    result = result.replace("/", ".")
+    if result.endswith(".py"):
+        result = result[:-3]
 
-moves = []
+    print("Creating graph for ", result)
 
-for (time, pair) in enumerate(r.attacker_moves_at_time):
-	if time == 0:
-		(x, y) = r.results.coords[pair[0]-1]
+    drawer = ILPAttackerDrawer(result)
 
-		moves.append((x, y, time))
-
-	if pair[0] != pair[1]:
-		(x, y) = r.results.coords[pair[1]-1]
-
-		moves.append((x, y, time))
-
-print(moves)
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-
-x, y, t = zip(*moves)
-
-ax.plot(x, y, t, label="attacker path")
-ax.scatter(x, y, t, c='b', marker='o')
-ax.legend()
-
-ax.set_zlabel("time")
-
-pos = nx.get_node_attributes(r.graph, 'pos')
-nx.draw_networkx_nodes(r.graph, ax=ax, pos=pos)
-#nx.draw_networkx_labels(r.graph, ax=ax, pos=pos)
-
-#nx.draw_networkx_edges(dg, pos=pos, edgelist=real_moves.keys(), edge_color="red", arrows=True)
-#nx.draw_networkx_edge_labels(dg, pos=pos, edge_labels=real_moves)
-
-if not os.path.exists('out'):
-    os.makedirs('out')
-
-plt.savefig('out/{}_attacker3d.pdf'.format(args.results))
-
-plt.show()
+    drawer.draw(show=not args.no_show)

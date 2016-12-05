@@ -4,4 +4,4 @@ syntax: glob
 *.mp4
 *.pyc
 *.pyo
-
+out/*

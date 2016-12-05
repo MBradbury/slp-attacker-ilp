@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 
+import argparse
 from collections import defaultdict, namedtuple, OrderedDict
 import math
 import os
@@ -34,7 +35,7 @@ class ILPMessageDrawer(object):
 
         self.message_colours = self.r.message_colours()
 
-    def draw_all(self):
+    def draw_all(self, show=True):
 
         num_messages = self.r.results.messages
         x = math.floor(math.sqrt(num_messages))
@@ -56,9 +57,10 @@ class ILPMessageDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        plt.savefig('out/{}_msg.pdf'.format(self.results_name))
+        plt.savefig('out/{}_msg.pdf'.format(self.results_name.replace(".", "_")))
 
-        plt.show()
+        if show:
+            plt.show()
 
     def draw_subplot(self, msg):
         real_moves_to_show = self.real_moves.get(msg, tuple())
@@ -89,8 +91,19 @@ class ILPMessageDrawer(object):
                 edge_color=self.message_colours[msg-1], width=3.5, arrows=True)
         nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)
 
-results_name = sys.argv[1]
+parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
+parser.add_argument("--results", metavar="R", nargs="+")
+parser.add_argument("--no-show", action='store_true', default=False)
 
-drawer = ILPMessageDrawer(results_name)
+args = parser.parse_args(sys.argv[1:])
 
-drawer.draw_all()
+for result in args.results:
+    result = result.replace("/", ".")
+    if result.endswith(".py"):
+        result = result[:-3]
+
+    print("Creating graph for ", result)
+
+    drawer = ILPMessageDrawer(result)
+
+    drawer.draw_all(show=not args.no_show)
