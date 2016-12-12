@@ -243,6 +243,11 @@ execute
 {
 	writeln("coords = ", Coordinates)
 	writeln("neighbours = ", Neighbours)
+	writeln("range = ", comms_range)
+	writeln("source_ids = ", SourceIDs)
+	writeln("sink_id = ", sink_id)
+	writeln("attacker_start_pos = ", attacker_start_pos)
+	writeln("attacker_range = ", attacker_range)
 	writeln("normal_messages = ", num_normal_messages)
 	writeln("fake_messages = ", num_fake_messages)
 	writeln("messages = ", num_total_messages)
