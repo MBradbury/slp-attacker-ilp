@@ -36,7 +36,31 @@ class ILPMessageDrawer(object):
 
         self.message_colours = self.r.message_colours()
 
-    def draw_all(self, show=True):
+    def draw_all(self):
+        out_dir = os.path.join("out", self.results_name.replace(".", "_"))
+
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        num_messages = self.r.results.messages
+
+        for msg in range(1, num_messages+1):
+
+            plt.clf()
+
+            ax = plt.gca()
+
+            ax.set_aspect("equal")
+            #ax.set_title("Message {}".format(msg))
+
+            self.draw_subplot(msg)
+
+            file = os.path.join(out_dir, '{}.pdf'.format(msg))
+            plt.savefig(file)
+
+            subprocess.check_call(["pdfcrop", file, file])
+
+    def draw_all_together(self, show=True):
 
         num_messages = self.r.results.messages
         x = math.floor(math.sqrt(num_messages))
@@ -52,8 +76,6 @@ class ILPMessageDrawer(object):
             ax.set_aspect("equal")
             ax.set_title("Message {}".format(msg))
             self.draw_subplot(msg)
-
-        plt.tight_layout()
 
         if not os.path.exists('out'):
             os.makedirs('out')
@@ -98,6 +120,7 @@ class ILPMessageDrawer(object):
 parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
 parser.add_argument("--results", metavar="R", nargs="+")
 parser.add_argument("--no-show", action='store_true', default=False)
+parser.add_argument("--combine", action='store_true', default=False)
 
 args = parser.parse_args(sys.argv[1:])
 
@@ -110,4 +133,7 @@ for result in args.results:
 
     drawer = ILPMessageDrawer(result)
 
-    drawer.draw_all(show=not args.no_show)
+    if args.combine:
+        drawer.draw_all_together(show=not args.no_show)
+    else:
+        drawer.draw_all()
