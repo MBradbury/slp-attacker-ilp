@@ -23,15 +23,18 @@ class ILPAttackerDrawer(object):
         moves = []
 
         for (time, pair) in enumerate(self.r.attacker_moves_at_time):
+
+            bcasts = [msg for (nid, msg) in self.r.broadcasts_at_time[time] if nid == pair[1]]
+
             if time == 0:
                 xvalue = pair[0] if with_node_id else self.min_src_distance(pair[0])
 
-                moves.append((xvalue, time))
+                moves.append((xvalue, time, None, pair[0]))
 
-            if pair[0] != pair[1]:
+            elif pair[0] != pair[1]:
                 xvalue = pair[1] if with_node_id else self.min_src_distance(pair[1])
 
-                moves.append((xvalue, time))
+                moves.append((xvalue, time, bcasts[0], pair[1]))
 
         print(moves)
 
@@ -44,16 +47,37 @@ class ILPAttackerDrawer(object):
         fig = plt.figure()
         ax = fig.gca()
 
-        x, t = zip(*self.moves)
+        xs, ts, labels, targets = zip(*self.moves)
 
-        ax.plot(x, t, label="attacker path")
-        ax.scatter(x, t, c='b', marker='o')
-        ax.legend()
+        ax.plot(xs, ts, label="attacker path")
+        ax.scatter(xs, ts, c='b', marker='o')
+        #ax.legend()
+
+        for ((x1, t1, label1, tar1), (x2, t2, label2, tar2)) in zip(self.moves, self.moves[1:]):
+            x = (x1 + x2) / 2
+            y = (t1 + t2) / 2
+
+            ax.annotate(label2,
+                xy=(x, y),
+                bbox={"boxstyle": "round,pad=0.25", "fc": "white"},
+                va="center",
+                ha="center",
+                backgroundcolor="white"
+            )
 
         if self.with_node_id:
             ax.set_xlabel("Node ID")
             ax.set_xticks(self.r.results.neighbours.keys())
         else:
+            for (x, t, label, target) in self.moves:
+                ax.annotate(target,
+                    xy=(x, t),
+                    xytext=(0, 17.5),
+                    textcoords="offset points",
+                    va="center",
+                    ha='center'
+                )
+
             ax.set_xlabel("Minimum Source Distance (hops)")
             ax.set_xlim(left=0)
 
