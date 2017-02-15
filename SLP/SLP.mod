@@ -34,7 +34,6 @@ Coords Coordinates[i in Nodes] = ...;
 // Attacker
 int attacker_start_pos = ...; // The id of the node the attacker starts at
 float attacker_range = ...; // The distance the attacker can hear messages from
-//int attacker_move_history = ...; // The number of previous moves the attacker will consider when making the next move
 
 assert attacker_start_pos in Nodes;
 
@@ -222,17 +221,6 @@ subject to {
 	  forall (e in AttackerEdges)
 	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) sum (m in AllMessages) broadcasts[n][m][t]) == 0) =>
 	      attacker_self_move[t] == 1;
-	
-	/*ctA08: // The attacker does not move back to the attacker_move_history previous locations
-	if (attacker_move_history > 0)
-	  forall (t in Times : t > attacker_move_history)
-		forall (e in AttackerEdges : e.u != e.v)
-		  // If the attacker moved to e.v at t
-		  attacker_path[t][e] == 1 =>
-		  	// Then the attacker shouldn't have moved to e.v on the past attacker_move_history moves
-		  	(sum (t2 in Times : t-attacker_move_history <= t2 < t)
-		  	  sum (e2 in AttackerEdges : e2.u != e2.v && e2.v == e.v)
-		  	    attacker_path[t2][e2]) == 0;*/
 };
 
 {Edge} Used[t in Times] = {e | e in AttackerEdges : attacker_path[t][e] == 1};
