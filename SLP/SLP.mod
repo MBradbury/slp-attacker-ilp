@@ -121,35 +121,35 @@ maximize
 
 subject to {
 
-	ctR00: // No messages are sent at t=0
+	ctR01: // No messages are sent at t=0
 	forall (n in Nodes)
 	  forall (m in AllMessages)
 	    broadcasts[n][m][0] == 0;
 	
-	ctR01: // When do source nodes send messages
+	ctR02: // When do source nodes send messages
 	forall (n in SourceIDs)
 	  forall (m in SourceMessages : m.src == n)
 	    broadcasts[n][m][((m.msg - 1) * source_period_quantised) + 1] == 1;
 	
-	ctR02: // No node sends more than one message concurrently
+	ctR03: // No node sends more than one message concurrently
 	forall (t in Times : t > 0) // Optimisation as t=0 no messages are sent
 	  forall (n in Nodes)
 	    (sum (m in AllMessages) broadcasts[n][m][t]) <= 1;
 	
-	ctR03: // Once a message is sent by one node it is never sent by that node again
+	ctR04: // Once a message is sent by one node it is never sent by that node again
 	forall (m in AllMessages)
 	  forall (n in Nodes)
 	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][m][t1] == 1) => (sum (t2 in Times : t2 > t1) broadcasts[n][m][t2]) == 0;
 	
-	ctR04: // Source Messages can only be forwarded after a neighbour has sent it
+	ctR05: // Source Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
 	  forall (m in SourceMessages)
 	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][m][t1] == 1) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
-	ctR05: // Messages sent by source must reach the sink
+	ctR06: // Messages sent by source must reach the sink
 	forall (m in SourceMessages)
 	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
 	
