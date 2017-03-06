@@ -61,6 +61,18 @@ class Results(object):
             self.graph.node[nid]['pos'] = coord
             self.graph.node[nid]['label'] = nid
 
+            self.graph.node[nid]['color'] = 'w'
+            self.graph.node[nid]['shape'] = 'o'
+            self.graph.node[nid]['size'] = 350
+
+        for nid in results.sources:
+            self.graph.node[nid]['shape'] = 'p'
+            self.graph.node[nid]['size'] = 550
+
+        if hasattr(results, "sink_id"):
+            self.graph.node[results.sink_id]['shape'] = 'H'
+            self.graph.node[results.sink_id]['size'] = 550
+
         # Add edges
         for (nid, nid_neighbours) in results.neighbours.items():
             self.graph.add_edges_from((nid, n) for n in nid_neighbours)

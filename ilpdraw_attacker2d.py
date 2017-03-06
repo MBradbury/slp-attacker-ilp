@@ -6,14 +6,26 @@ import os
 import subprocess
 import sys
 
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 
 from results.parser import Results
 
+font = {"size": "18"}
+
+def trim_whitespace(file):
+    if file.endswith('.pdf'):
+        subprocess.check_call(["pdfcrop", file, file])
+    elif file.endswith('.png'):
+        subprocess.check_call(["convert", file, "-trim", file])
+    else:
+        raise RuntimeError("Unknown file type")
+
 class ILPAttackerDrawer(object):
-    def __init__(self, results_name, with_node_id=False):
+    def __init__(self, results_name, output_format, with_node_id=False):
         self.results_name = results_name
+        self.output_format = output_format
         self.with_node_id = with_node_id
 
         self.r = Results(results_name)
@@ -62,11 +74,12 @@ class ILPAttackerDrawer(object):
                 bbox={"boxstyle": "round,pad=0.25", "fc": "white"},
                 va="center",
                 ha="center",
-                backgroundcolor="white"
+                backgroundcolor="white",
+                **font
             )
 
         if self.with_node_id:
-            ax.set_xlabel("Node ID")
+            ax.set_xlabel("Node ID", **font)
             ax.set_xticks(self.r.results.neighbours.keys())
         else:
             for (x, t, label, target) in self.moves:
@@ -75,31 +88,35 @@ class ILPAttackerDrawer(object):
                     xytext=(0, 17.5),
                     textcoords="offset points",
                     va="center",
-                    ha='center'
+                    ha='center',
+                    **font
                 )
 
-            ax.set_xlabel("Minimum Source Distance (hops)")
+            ax.set_xlabel("Minimum Source Distance (hops)", **font)
             ax.set_xlim(left=0)
 
-        ax.set_ylabel("Time (seconds)")
+        ax.set_ylabel("Time (slots)", **font)
         ax.set_ylim(bottom=0)
+
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.tick_params(axis='both', which='minor', labelsize=16)
 
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_attacker2d.pdf'.format(self.results_name.replace(".", "_"))
+        file = 'out/{}_attacker2d.{}'.format(self.results_name.replace(".", "_"), self.output_format)
         plt.savefig(file)
-
-        subprocess.check_call(["pdfcrop", file, file])
+        trim_whitespace(file)
 
         if show:
             plt.show()
 
 
 parser = argparse.ArgumentParser(description="ILP Draw Attacker 2D", add_help=True)
-parser.add_argument("--results", metavar="R", nargs="+")
+parser.add_argument("results", metavar="R", nargs="+")
 parser.add_argument("--no-show", action='store_true', default=False)
 parser.add_argument("--with-node-id", action='store_true', default=False)
+parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
 
 args = parser.parse_args(sys.argv[1:])
 
@@ -110,6 +127,6 @@ for result in args.results:
 
     print("Creating graph for ", result)
 
-    drawer = ILPAttackerDrawer(result, with_node_id=args.with_node_id)
+    drawer = ILPAttackerDrawer(result, output_format=args.format, with_node_id=args.with_node_id)
 
     drawer.draw(show=not args.no_show)

@@ -18,9 +18,18 @@ from results.parser import Results
 
 TimeNid = namedtuple("TimeNid", ("time", "nid"))
 
+def trim_whitespace(file):
+    if file.endswith('.pdf'):
+        subprocess.check_call(["pdfcrop", file, file])
+    elif file.endswith('.png'):
+        subprocess.check_call(["convert", file, "-trim", file])
+    else:
+        raise RuntimeError("Unknown file type")
+
 class ILPMessageDrawer(object):
-    def __init__(self, results_name):
+    def __init__(self, results_name, output_format):
         self.results_name = results_name
+        self.output_format = output_format
 
         self.r = Results(results_name)
 
@@ -51,14 +60,15 @@ class ILPMessageDrawer(object):
             ax = plt.gca()
 
             ax.set_aspect("equal")
+            ax.set_axis_off()
+            ax.invert_yaxis()
             #ax.set_title("Message {}".format(msg))
 
             self.draw_subplot(msg)
 
-            file = os.path.join(out_dir, '{}.pdf'.format(msg))
+            file = os.path.join(out_dir, '{}.{}'.format(msg, self.output_format))
             plt.savefig(file)
-
-            subprocess.check_call(["pdfcrop", file, file])
+            trim_whitespace(file)
 
     def draw_all_together(self, show=True):
 
@@ -75,15 +85,16 @@ class ILPMessageDrawer(object):
             ax = plt.subplot(x, y, msg)
             ax.set_aspect("equal")
             ax.set_title("Message {}".format(msg))
+            ax.set_axis_off()
+            ax.invert_yaxis()
             self.draw_subplot(msg)
 
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_msg.pdf'.format(self.results_name.replace(".", "_"))
+        file = 'out/{}_msg.{}'.format(self.results_name.replace(".", "_"), self.output_format)
         plt.savefig(file)
-
-        subprocess.check_call(["pdfcrop", file, file])
+        trim_whitespace(file)
 
         if show:
             plt.show()
@@ -109,18 +120,53 @@ class ILPMessageDrawer(object):
 
         print(graph.edges())
 
-        pos = nx.get_node_attributes(graph, 'pos')
+        """pos = nx.get_node_attributes(graph, 'pos')
 
         nx.draw(graph, pos,
                 node_color=["w"] * len(pos),
                 labels=nx.get_node_attributes(graph, 'label'),
                 edge_color=self.message_colours[msg-1], width=3.5, arrows=True)
-        nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)
+        nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)"""
+
+        node_shapes = {node_data['shape'] for (node, node_data) in graph.nodes(data=True)}
+        
+        pos = nx.get_node_attributes(graph, 'pos')
+        col = nx.get_node_attributes(graph, 'color')
+        sizes = nx.get_node_attributes(graph, 'size')
+
+        for shape in node_shapes:
+            nodes = [node for (node, node_data) in graph.nodes(data=True) if node_data['shape'] == shape]
+
+            color = [col[nid] for nid in nodes]
+            size = [sizes[nid] for nid in nodes]
+
+            nx.draw_networkx_nodes(graph, pos,
+                node_shape=shape,
+                node_color=color,
+                node_size=size,
+                nodelist=nodes,
+            )
+
+        nx.draw_networkx_edges(graph, pos,
+            edge_color=self.message_colours[msg-1],
+            width=3.5,
+            arrows=True
+        )
+
+        nx.draw_networkx_edge_labels(graph, pos,
+            edge_labels=edges
+        )
+
+        nx.draw_networkx_labels(graph, pos,
+            labels=nx.get_node_attributes(graph, 'label'),
+            font_size=12
+        )
 
 parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
-parser.add_argument("--results", metavar="R", nargs="+")
+parser.add_argument("results", metavar="R", nargs="+")
 parser.add_argument("--no-show", action='store_true', default=False)
 parser.add_argument("--combine", action='store_true', default=False)
+parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
 
 args = parser.parse_args(sys.argv[1:])
 
@@ -131,7 +177,7 @@ for result in args.results:
 
     print("Creating graph for ", result)
 
-    drawer = ILPMessageDrawer(result)
+    drawer = ILPMessageDrawer(result, output_format=args.format)
 
     if args.combine:
         drawer.draw_all_together(show=not args.no_show)

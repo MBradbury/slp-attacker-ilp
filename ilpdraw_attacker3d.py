@@ -69,7 +69,7 @@ class ILPAttackerDrawer(object):
 
 
 parser = argparse.ArgumentParser(description="ILP Draw Attacker 3D", add_help=True)
-parser.add_argument("--results", metavar="R", nargs="+")
+parser.add_argument("results", metavar="R", nargs="+")
 parser.add_argument("--no-show", action='store_true', default=False)
 
 args = parser.parse_args(sys.argv[1:])
