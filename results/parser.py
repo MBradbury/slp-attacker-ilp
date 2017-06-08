@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 import ast
 import importlib
+import re
 
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -17,7 +18,7 @@ def ilp_ndarray_str_eval(il_array):
 
     return ast.literal_eval(il_array[:-1])
 
-def ilp_array_tuple_eval(il_array):
+def ilp_array_tuple_set_eval(il_array):
     il_array = il_array.strip()
     il_array = il_array.replace("\n", "")
     il_array = il_array.replace("        ", "")
@@ -46,12 +47,44 @@ def ilp_array_msgs_eval(il_array):
 
     return ast.literal_eval(il_array)
 
+def ilp_array_tuple_eval(il_array):
+    il_array = il_array.strip()
+
+    il_array = re.sub(r"<([0-9]+) ([0-9]+)>", r"(\1, \2),", il_array)
+
+    return ast.literal_eval(il_array)
+
+def ilp_array_neighbour_dicts(il_array):
+
+    il_array = il_array.strip()
+    il_array = il_array.replace(" ", ", ")
+
+    # Python 2.7 doesn't support set literals for literal_eval
+    # Covert to a list here, then convert to a set later
+    il_array = il_array.replace("{", "[")
+    il_array = il_array.replace("}", "]")
+
+    print(il_array)
+    
+    arr = ast.literal_eval(il_array)
+
+    return {k: set(v) for (k, v) in enumerate(arr, start=1)}
+
 class Results(object):
     def __init__(self, results_name):
         self.results_name = results_name
 
         results = importlib.import_module(results_name)
         self.results = results
+
+        if hasattr(self.results, "source_ids"):
+            self.results.sources = self.results.source_ids
+
+        if isinstance(self.results.coords, str):
+            self.results.coords = ilp_array_tuple_eval(self.results.coords)
+
+        if isinstance(self.results.neighbours, str):
+            self.results.neighbours = ilp_array_neighbour_dicts(self.results.neighbours)
 
         self.graph = nx.Graph()
         self.graph.add_nodes_from(range(1, len(results.coords)+1))
@@ -83,7 +116,7 @@ class Results(object):
 
             self.attacker_moves_at_time = [results.attacker_edges[moves.index(1)] for moves in attacker_path]
         else:
-            self.attacker_moves_at_time = ilp_array_tuple_eval(results.used_edges)
+            self.attacker_moves_at_time = ilp_array_tuple_set_eval(results.used_edges)
 
 
         self.broadcasts_at_time = [set() for _ in self.attacker_moves_at_time]
