@@ -57,6 +57,8 @@ def ilp_array_tuple_eval(il_array):
 def ilp_array_neighbour_dicts(il_array):
 
     il_array = il_array.strip()
+    il_array = il_array.replace("\n", "")
+    il_array = il_array.replace("    ", "")
     il_array = il_array.replace(" ", ", ")
 
     # Python 2.7 doesn't support set literals for literal_eval
