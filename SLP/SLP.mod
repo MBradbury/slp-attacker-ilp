@@ -113,6 +113,10 @@ dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages]
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
 
+// Just find a solution where the attacker does not find the source
+/*minimize
+  	(sum(e in AttackerEdges : e.v in SourceIDs) attacker_path[max_time][e]);*/
+
 /*minimize
   	// Minimise the number of messages sent
 	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]) +
@@ -234,8 +238,8 @@ subject to {
 
 execute
 {
-	writeln("coords = ", Coordinates)
-	writeln("neighbours = ", Neighbours)
+	writeln("coords = \"\"\"", Coordinates, "\"\"\"")
+	writeln("neighbours = \"\"\"", Neighbours, "\"\"\"")
 	writeln("range = ", comms_range)
 	writeln("source_ids = ", SourceIDs)
 	writeln("sink_id = ", sink_id)
@@ -245,6 +249,8 @@ execute
 	writeln("fake_messages = ", num_fake_messages)
 	writeln("messages = ", num_total_messages)
 	writeln("slots_per_second = ", slots_per_second)
+	writeln("source_period = ", source_period)
+	writeln("safety_period = ", safety_period)
 
 	writeln("used_edges = \"\"\"", Used, "\"\"\"")
 	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"")
