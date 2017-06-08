@@ -66,8 +66,6 @@ def ilp_array_neighbour_dicts(il_array):
     il_array = il_array.replace("{", "[")
     il_array = il_array.replace("}", "]")
 
-    print(il_array)
-    
     arr = ast.literal_eval(il_array)
 
     return {k: set(v) for (k, v) in enumerate(arr, start=1)}
