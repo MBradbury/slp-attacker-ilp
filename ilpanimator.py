@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 import argparse
 import os
+import shutil
 import sys
 
 import networkx as nx
@@ -13,6 +14,37 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 from results.parser import Results
+
+class FrameWriter(animation.ImageMagickBase, animation.FileMovieWriter):
+    '''File-based frame writer.
+
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
+    '''
+
+    supported_formats = ['png']
+
+    def finish(self):
+        # Call run here now that all frame grabbing is done. All temp files
+        # are available to be assembled.
+
+        if not os.path.exists(self.outfile):
+            os.makedirs(self.outfile)
+        else:
+            if not os.path.isdir(self.outfile):
+                raise RuntimeError("The path {} must be a directory".format(self.outfile))
+            else:
+                shutil.rmtree(self.outfile)
+                os.makedirs(self.outfile)
+
+        for fname in self._temp_names:
+            new_name_parts = fname[4:].split(u'.')
+            new_name = "{}.{}".format(int(new_name_parts[0]), new_name_parts[1])
+
+            os.rename(fname, os.path.join(self.outfile, new_name))
+
+    def _args(self):
+        return None
 
 class ILPAnimator(object):
     def __init__(self, results_name):
@@ -76,7 +108,7 @@ class ILPAnimator(object):
 
 parser = argparse.ArgumentParser(description="ILP Animator", add_help=True)
 parser.add_argument("results", metavar="R", nargs="+")
-parser.add_argument("--format", required=True, choices=["gif", "mp4", "none"])
+parser.add_argument("--format", required=True, choices=["gif", "mp4", "frames", "none"])
 parser.add_argument("--no-show", action='store_true', default=False)
 
 args = parser.parse_args(sys.argv[1:])
@@ -106,11 +138,18 @@ for result in args.results:
         # your system: for more information, see
         # http://matplotlib.sourceforge.net/api/animation_api.html
         path = 'out/{}_anim.mp4'.format(result.replace(".", "_"))
-        ani.save(path, extra_args=['-vcodec', 'libx264'])
+        ani.save(path, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
 
     elif args.format == "gif":
         path = 'out/{}_anim.gif'.format(result.replace(".", "_"))
         ani.save(path, writer='imagemagick')
+
+    elif args.format == "frames":
+        path = 'out/{}_frames/'.format(result.replace(".", "_"))
+        ani.save(path, writer=FrameWriter())
+
+        # Can't show these individual frames
+        args.no_show = True
 
     elif args.format == "none":
         pass
