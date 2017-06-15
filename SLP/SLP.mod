@@ -109,7 +109,7 @@ dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages]
 	broadcasts[n][m][t] == 1 &&
 	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) >= 1;
 
-// maximise the distance between the attacker and the source	
+// maximise the distance between the attacker and the source (works)
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
 
@@ -124,9 +124,9 @@ maximize
 	// If the attacker finds the source, then weight this run poorly
 	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * infinity));*/
 
+// Minimise the number of moves the attacker makes in response to a broadcast (works)
 /*minimize
-	// Minimise the number of moves the attacker makes in response to a broadcast
-	sum(e in AttackerEdges) sum(m in Messages) sum(t in Times) (broadcasts[e.v][m][t] == attacker_path[t][e]);*/
+	sum(e in AttackerEdges) sum(m in AllMessages) sum(t in Times) (broadcasts[e.v][m][t] == 1 && attacker_path[t][e] == 1);*/
 
 subject to {
 
