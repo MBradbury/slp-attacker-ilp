@@ -104,11 +104,7 @@ dexpr int attacker_moved_because_at[m in AllMessages][t in Times] =
 
 dexpr int node_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Times] =
 	broadcasts[n][m][t] == 1 &&
-	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) == 0;
-
-dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Times] =
-	broadcasts[n][m][t] == 1 &&
-	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) >= 1;
+	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) broadcasts[neigh][m][t2]) == 0;
 
 dexpr int message_latency[m in SourceMessages] =
 	// Need to find receive time
@@ -129,11 +125,11 @@ maximize
 
 // Optimise for energy usage (not working)
 /*minimize
-  	// Minimise the number of messages sent
-	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]) +
+  	// If the attacker finds the source, then weight this run poorly
+	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
 	
-	// If the attacker finds the source, then weight this run poorly
-	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000));*/
+  	// Minimise the number of messages sent
+	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]);*/
 
 // Minimise the number of moves the attacker makes in response to a broadcast (works)
 /*minimize
@@ -191,12 +187,12 @@ subject to {
 		    			(node_generated_fake_message_at[n2][m][t2] == 1)) == 0;
 		
 		ctF02: // Fake Messages can only be forwarded after a neighbour has sent it
-		forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they do not send fake messages
+		forall (n in Nodes)
+		  forall (m in FakeMessages)
 		    forall (t1 in Times : t1 > 0)
-		      forall (m in FakeMessages)
-		      	(broadcasts[n][m][t1] == 1 && node_generated_fake_message_at[n][m][t1] == 0) => 
-		      		(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) (broadcasts[n][m][t1])) >= 1;
-    }	      		
+		      (broadcasts[n][m][t1] == 1 && node_generated_fake_message_at[n][m][t1] == 0) => 
+		        (sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
+    }
 	
 	// The first attacker move at the special time t=0 is the self-self move.
 	ctA01:
