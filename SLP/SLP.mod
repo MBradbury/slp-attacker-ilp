@@ -70,7 +70,8 @@ float Distance[i in Nodes][j in Nodes] =
 
 //{Edge} SourceSelfEdges with u in SourceIDs, v in SourceIDs = { <u,v> | u,v in SourceIDs : u == v };
 
-// It will stay at the source node once it reaches it.
+// Attacker edges excluding ones leaving the source.
+// The attacker will stay at the source node once it reaches it.
 {Edge} AttackerEdges with u in Nodes, v in Nodes =
                               { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
@@ -88,9 +89,9 @@ dvar boolean attacker_path[Times][AttackerEdges];
 dexpr int attacker_moved_to_at[n in Nodes][t in Times] =
 	(sum (e in AttackerEdges : e.v == n) attacker_path[t][e]) == 1;
 
-// Did the attacker move to a neighbour of n at t
+// Did the attacker to a neighbour of n at t
 dexpr int attacker_moved_to_neighbour_at[n in Nodes][t in Times] =
-	(sum (e in AttackerEdges : e.v in AttackerNeighbours[n]) attacker_path[t][e]) == 1;
+	(sum (e in AttackerEdges : n in AttackerNeighbours[e.v]) attacker_path[t][e]) == 1;
 
 // Did the attacker do a self-self move at t
 dexpr int attacker_self_move[t in Times] =
@@ -141,7 +142,7 @@ maximize
 // Minimise the latency between when a message is sent and when it is received (working)
 /*minimize
   	// If the attacker finds the source, then weight this run poorly
-	//(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
+	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
 
   	sum(m in SourceMessages) message_latency[m];*/
 
@@ -201,7 +202,7 @@ subject to {
 	ctA01:
 	attacker_path[0][<attacker_start_pos,attacker_start_pos>] == 1;
 	
-	ctA02: // Attacker makes one move each time step (This may be the self-self move)
+	ctA02: // Attacker makes exactly one move each time step (This may be the self-self move)
 	forall (t in Times)
 	  (sum (e in AttackerEdges) attacker_path[t][e]) == 1;
 	
