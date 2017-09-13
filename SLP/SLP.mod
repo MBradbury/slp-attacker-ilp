@@ -109,6 +109,15 @@ dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages]
 	broadcasts[n][m][t] == 1 &&
 	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) (broadcasts[neigh][m][t2] == 1)) >= 1;
 
+dexpr int message_latency[m in SourceMessages] =
+	// Need to find receive time
+	min(sink_id in SinkIDs, n in Neighbours[sink_id], t in Times)
+		((broadcasts[n][m][t] == 1) ? t : 10000)
+	-
+	// Need to find send time
+	min(source_id in SourceIDs, t in Times)
+		((broadcasts[source_id][m][t] == 1) ? t : 10000);
+
 // maximise the distance between the attacker and the source (works)
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
@@ -116,17 +125,25 @@ maximize
 // Just find a solution where the attacker does not find the source (works)
 /*minimize
   	(sum(e in AttackerEdges : e.v in SourceIDs) attacker_path[max_time][e]);*/
-  	
+
+// Optimise for energy usage (not working)
 /*minimize
   	// Minimise the number of messages sent
 	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]) +
 	
 	// If the attacker finds the source, then weight this run poorly
-	(sum(e in AttackerEdges : e.v in SourceIDs) ((attacker_path[max_time][e] == 1) ? 1000 : 0));*/
+	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000));*/
 
 // Minimise the number of moves the attacker makes in response to a broadcast (works)
 /*minimize
 	sum(e in AttackerEdges) sum(m in AllMessages) sum(t in Times) (broadcasts[e.v][m][t] == 1 && attacker_path[t][e] == 1);*/
+
+// Minimise the latency between when a message is sent and when it is received (working)
+/*minimize
+  	// If the attacker finds the source, then weight this run poorly
+	//(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
+
+  	sum(m in SourceMessages) message_latency[m];*/
 
 subject to {
 
@@ -254,4 +271,5 @@ execute
 
 	writeln("used_edges = \"\"\"", Used, "\"\"\"")
 	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"")
+	writeln("message_latency = \"\"\"", message_latency, "\"\"\"")
 }
