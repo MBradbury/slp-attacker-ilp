@@ -22,11 +22,11 @@ tuple Message
 int num_nodes = ...; // Number of nodes in the network
 float comms_range = ...; // The range of the nodes
 {int} SourceIDs = ...; // The ids of the source nodes
-int sink_id = ...;
+{int} SinkIDs = ...;
 
 range Nodes = 1..num_nodes;
 
-assert sink_id in Nodes;
+assert forall (sink_id in SinkIDs) sink_id in Nodes;
 assert forall (source_id in SourceIDs) source_id in Nodes;
 
 Coords Coordinates[i in Nodes] = ...;
@@ -113,16 +113,16 @@ dexpr int node_sent_not_generated_fake_message_at[n in Nodes][m in FakeMessages]
 maximize
 	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
 
-// Just find a solution where the attacker does not find the source
+// Just find a solution where the attacker does not find the source (works)
 /*minimize
   	(sum(e in AttackerEdges : e.v in SourceIDs) attacker_path[max_time][e]);*/
-
+  	
 /*minimize
   	// Minimise the number of messages sent
 	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]) +
 	
 	// If the attacker finds the source, then weight this run poorly
-	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * infinity));*/
+	(sum(e in AttackerEdges : e.v in SourceIDs) ((attacker_path[max_time][e] == 1) ? 1000 : 0));*/
 
 // Minimise the number of moves the attacker makes in response to a broadcast (works)
 /*minimize
@@ -158,9 +158,9 @@ subject to {
 	      (broadcasts[n][m][t1] == 1) => 
 	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
-	ctR06: // Messages sent by source must reach the sink
+	ctR06: // Messages sent by source must reach at least one sink
 	forall (m in SourceMessages)
-	  (sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
+	  (sum (sink_id in SinkIDs) sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
 	
 	if (num_fake_messages > 0)
 	{
@@ -242,7 +242,7 @@ execute
 	writeln("neighbours = \"\"\"", Neighbours, "\"\"\"")
 	writeln("range = ", comms_range)
 	writeln("source_ids = ", SourceIDs)
-	writeln("sink_id = ", sink_id)
+	writeln("sink_ids = ", SinkIDs)
 	writeln("attacker_start_pos = ", attacker_start_pos)
 	writeln("attacker_range = ", attacker_range)
 	writeln("normal_messages = ", num_normal_messages)

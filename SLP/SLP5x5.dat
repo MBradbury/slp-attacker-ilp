@@ -2,7 +2,7 @@
 num_nodes = 25;
 comms_range = 1.0;
 SourceIDs = {1};
-sink_id = 13;
+SinkIDs = {13};
 
 Coordinates = [
 	<0,0>, <1,0>, <2,0>, <3,0>, <4,0>,

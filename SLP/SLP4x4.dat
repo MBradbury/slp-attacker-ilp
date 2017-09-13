@@ -2,7 +2,7 @@
 num_nodes = 16;
 comms_range = 1.0;
 SourceIDs = {1};
-sink_id = 16;
+SinkIDs = {16};
 
 Coordinates = [
 	<0,0>, <1,0>, <2,0>, <3,0>,
@@ -15,7 +15,7 @@ Coordinates = [
 attacker_start_pos = 16;
 attacker_range = 1.0;
 
-num_fake_messages = 5;
+num_fake_messages = 0;
 
 // Routing Settings
 source_period = 1; // seconds between messages
