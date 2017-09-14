@@ -18,6 +18,8 @@ tuple Message
 	int msg;
 }
 
+int obj = ...;
+
 // Network
 int num_nodes = ...; // Number of nodes in the network
 float comms_range = ...; // The range of the nodes
@@ -115,32 +117,53 @@ dexpr int message_latency[m in SourceMessages] =
 	min(source_id in SourceIDs, t in Times)
 		((broadcasts[source_id][m][t] == 1) ? t : 10000);
 
-// maximise the distance between the attacker and the source (works)
-maximize
-	sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]);
+
+
+
+// Objective dexprs
+
+// Maximise the distance between the attacker and the source (works)
+dexpr float attacker_source_distance_obj =
+	-(sum(s in SourceIDs) sum(e in AttackerEdges) (attacker_path[max_time][e] * Distance[s][e.v]));
 
 // Just find a solution where the attacker does not find the source (works)
-/*minimize
-  	(sum(e in AttackerEdges : e.v in SourceIDs) attacker_path[max_time][e]);*/
+dexpr int attacker_find_source_obj =
+	(sum(e in AttackerEdges : e.v in SourceIDs) attacker_path[max_time][e]);
 
 // Optimise for energy usage (not working)
-/*minimize
-  	// If the attacker finds the source, then weight this run poorly
+dexpr int energy_usage_obj =
+	// If the attacker finds the source, then weight this run poorly
 	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
 	
   	// Minimise the number of messages sent
-	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]);*/
+	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]);
 
-// Minimise the number of moves the attacker makes in response to a broadcast (works)
-/*minimize
-	sum(e in AttackerEdges) sum(m in AllMessages) sum(t in Times) (broadcasts[e.v][m][t] == 1 && attacker_path[t][e] == 1);*/
+// Minimise the number of moves the attacker makes from one node to a different node (works)
+dexpr int attacker_moves_obj =
+	sum(e in AttackerEdges : e.u != e.v) sum(t in Times)
+	  (attacker_path[t][e] == 1);
 
 // Minimise the latency between when a message is sent and when it is received (working)
-/*minimize
-  	// If the attacker finds the source, then weight this run poorly
+dexpr float message_latency_obj =
+	// If the attacker finds the source, then weight this run poorly
 	(sum(e in AttackerEdges : e.v in SourceIDs) (attacker_path[max_time][e] * 1000)) +
 
-  	sum(m in SourceMessages) message_latency[m];*/
+  	sum(m in SourceMessages) message_latency[m];
+
+assert(obj >= 0 && obj <= 4);
+
+dexpr float objective_value =
+	obj == 0 ? attacker_source_distance_obj :
+	obj == 1 ? attacker_find_source_obj :
+	obj == 2 ? energy_usage_obj :
+	obj == 3 ? attacker_moves_obj :
+	obj == 4 ? message_latency_obj :
+	infinity;
+
+minimize objective_value;
+
+// TODO: Look into using staticLex to prioritise multiple objectives
+//minimize staticLex(attacker_find_source_obj, message_latency_obj);
 
 subject to {
 
@@ -265,7 +288,14 @@ execute
 	writeln("slots_per_second = ", slots_per_second)
 	writeln("source_period = ", source_period)
 	writeln("safety_period = ", safety_period)
-
+	writeln("objective = ", obj)
+	
+	writeln("attacker_source_distance_obj = ", attacker_source_distance_obj)
+	writeln("attacker_find_source_obj = ", attacker_find_source_obj)
+	writeln("energy_usage_obj = ", energy_usage_obj)
+	writeln("attacker_moves_obj = ", attacker_moves_obj)
+	writeln("message_latency_obj = ", message_latency_obj)
+	
 	writeln("used_edges = \"\"\"", Used, "\"\"\"")
 	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"")
 	writeln("message_latency = \"\"\"", message_latency, "\"\"\"")

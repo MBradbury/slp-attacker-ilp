@@ -21,3 +21,5 @@ source_period = 1; // seconds between messages
 safety_period = 5.0;
 
 slots_per_second = 5;
+
+obj = 0;
