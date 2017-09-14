@@ -68,16 +68,16 @@ float Distance[i in Nodes][j in Nodes] =
 
 // Eliminate self-self moves as when a node bcasts it will not receive a message sent by itself
 {Edge} Edges with u in Nodes, v in Nodes = { <u,v> | u,v in Nodes : Distance[u][v] <= comms_range && u != v };
-{int} Neighbours[i in Nodes]  = { j | <i,j> in Edges : i != j };
-
-//{Edge} SourceSelfEdges with u in SourceIDs, v in SourceIDs = { <u,v> | u,v in SourceIDs : u == v };
+{int} NeighboursFrom[i in Nodes] = { j | <i,j> in Edges : i != j };
+{int} NeighboursTo[i in Nodes] = { j | <j, i> in Edges : i != j };
 
 // Attacker edges excluding ones leaving the source.
 // The attacker will stay at the source node once it reaches it.
 {Edge} AttackerEdges with u in Nodes, v in Nodes =
                               { <u,v> | u,v in Nodes : Distance[u][v] <= attacker_range } diff
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
-{int} AttackerNeighbours[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
+{int} AttackerNeighboursFrom[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
+{int} AttackerNeighboursTo[i in Nodes] = { j | <j, i> in AttackerEdges : i != j };
 
 // Others
 
@@ -92,8 +92,9 @@ dexpr int attacker_moved_to_at[n in Nodes][t in Times] =
 	(sum (e in AttackerEdges : e.v == n) attacker_path[t][e]) == 1;
 
 // Did the attacker to a neighbour of n at t
+// (Can the attacker get to n from the location it ended at?)
 dexpr int attacker_moved_to_neighbour_at[n in Nodes][t in Times] =
-	(sum (e in AttackerEdges : n in AttackerNeighbours[e.v]) attacker_path[t][e]) == 1;
+	(sum (e in AttackerEdges : e.v in AttackerNeighboursTo[n]) attacker_path[t][e]) == 1;
 
 // Did the attacker do a self-self move at t
 dexpr int attacker_self_move[t in Times] =
@@ -106,11 +107,11 @@ dexpr int attacker_moved_because_at[m in AllMessages][t in Times] =
 
 dexpr int node_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Times] =
 	broadcasts[n][m][t] == 1 &&
-	(sum (neigh in Neighbours[n]) sum (t2 in Times : 0 < t2 < t) broadcasts[neigh][m][t2]) == 0;
+	(sum (neigh in NeighboursTo[n]) sum (t2 in Times : 0 < t2 < t) broadcasts[neigh][m][t2]) == 0;
 
 dexpr int message_latency[m in SourceMessages] =
 	// Need to find receive time
-	min(sink_id in SinkIDs, n in Neighbours[sink_id], t in Times)
+	min(sink_id in SinkIDs, n in NeighboursTo[sink_id], t in Times)
 		((broadcasts[n][m][t] == 1) ? t : 10000)
 	-
 	// Need to find send time
@@ -150,7 +151,7 @@ dexpr float message_latency_obj =
 
   	sum(m in SourceMessages) message_latency[m];
 
-assert(obj >= 0 && obj <= 4);
+assert obj >= 0 && obj <= 4;
 
 dexpr float objective_value =
 	obj == 0 ? attacker_source_distance_obj :
@@ -193,11 +194,11 @@ subject to {
 	  forall (m in SourceMessages)
 	    forall (t1 in Times : t1 > 0)
 	      (broadcasts[n][m][t1] == 1) => 
-	      	(sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
+	      	(sum (neigh in NeighboursTo[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
 	ctR06: // Messages sent by source must reach at least one sink
 	forall (m in SourceMessages)
-	  (sum (sink_id in SinkIDs) sum (n in Neighbours[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
+	  (sum (sink_id in SinkIDs) sum (n in NeighboursTo[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
 	
 	if (num_fake_messages > 0)
 	{
@@ -214,7 +215,7 @@ subject to {
 		  forall (m in FakeMessages)
 		    forall (t1 in Times : t1 > 0)
 		      (broadcasts[n][m][t1] == 1 && node_generated_fake_message_at[n][m][t1] == 0) => 
-		        (sum (neigh in Neighbours[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
+		        (sum (neigh in NeighboursTo[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
     }
 	
 	// The first attacker move at the special time t=0 is the self-self move.
@@ -246,7 +247,7 @@ subject to {
         forall (t in Times : t > 0)
           // if node n sent m at t
 		  (broadcasts[n][m][t] == 1) &&
-		  // and the attacker moved to a neighbour of n at t-1
+		  // and the attacker moved to a node at t-1 that can reach n at t
 		  (attacker_moved_to_neighbour_at[n][t-1] == 1) &&
 		  // and the attacker has never moved in response to m before
 		  (sum (t2 in Times : 0 < t2 < t) (attacker_moved_because_at[m][t2] == 1)) == 0
@@ -265,7 +266,7 @@ subject to {
 	ctA07: // Attacker does not move when no neighbours send a message (t > 0)
 	forall (t in Times : t > 0)
 	  forall (e in AttackerEdges)
-	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighbours[e.v]) sum (m in AllMessages) broadcasts[n][m][t]) == 0) =>
+	    (attacker_path[t-1][e] == 1 && (sum (n in AttackerNeighboursTo[e.v]) sum (m in AllMessages) broadcasts[n][m][t]) == 0) =>
 	      attacker_self_move[t] == 1;
 };
 
@@ -276,12 +277,15 @@ subject to {
 execute
 {
 	writeln("coords = \"\"\"", Coordinates, "\"\"\"")
-	writeln("neighbours = \"\"\"", Neighbours, "\"\"\"")
+	writeln("neighbours_to = \"\"\"", NeighboursTo, "\"\"\"")
+	writeln("neighbours_from = \"\"\"", NeighboursFrom, "\"\"\"")
 	writeln("range = ", comms_range)
 	writeln("source_ids = ", SourceIDs)
 	writeln("sink_ids = ", SinkIDs)
 	writeln("attacker_start_pos = ", attacker_start_pos)
 	writeln("attacker_range = ", attacker_range)
+	writeln("attacker_neighbours_to = \"\"\"", AttackerNeighboursTo, "\"\"\"")
+	writeln("attacker_neighbours_from = \"\"\"", AttackerNeighboursFrom, "\"\"\"")
 	writeln("normal_messages = ", num_normal_messages)
 	writeln("fake_messages = ", num_fake_messages)
 	writeln("messages = ", num_total_messages)
@@ -290,7 +294,7 @@ execute
 	writeln("safety_period = ", safety_period)
 	writeln("objective = ", obj)
 	
-	writeln("attacker_source_distance_obj = ", attacker_source_distance_obj)
+	writeln("attacker_source_distance_obj = ", -attacker_source_distance_obj)
 	writeln("attacker_find_source_obj = ", attacker_find_source_obj)
 	writeln("energy_usage_obj = ", energy_usage_obj)
 	writeln("attacker_moves_obj = ", attacker_moves_obj)
