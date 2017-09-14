@@ -71,6 +71,8 @@ float Distance[i in Nodes][j in Nodes] =
 {int} NeighboursFrom[i in Nodes] = { j | <i,j> in Edges : i != j };
 {int} NeighboursTo[i in Nodes] = { j | <j, i> in Edges : i != j };
 
+assert card(Edges) > 0;
+
 // Attacker edges excluding ones leaving the source.
 // The attacker will stay at the source node once it reaches it.
 {Edge} AttackerEdges with u in Nodes, v in Nodes =
@@ -78,6 +80,8 @@ float Distance[i in Nodes][j in Nodes] =
                               { <s,v> | s in SourceIDs, v in Nodes : s != v };
 {int} AttackerNeighboursFrom[i in Nodes] = { j | <i,j> in AttackerEdges : i != j };
 {int} AttackerNeighboursTo[i in Nodes] = { j | <j, i> in AttackerEdges : i != j };
+
+assert card(AttackerEdges) > 0;
 
 // Others
 
@@ -139,10 +143,10 @@ dexpr int energy_usage_obj =
   	// Minimise the number of messages sent
 	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]);
 
-// Minimise the number of moves the attacker makes from one node to a different node (works)
+// Minimise the number of moves the attacker makes in response to a broadcast (works)
 dexpr int attacker_moves_obj =
-	sum(e in AttackerEdges : e.u != e.v) sum(t in Times)
-	  (attacker_path[t][e] == 1);
+	sum(e in AttackerEdges : e.u != e.v) sum(m in AllMessages) sum(t in Times)
+	  (broadcasts[e.v][m][t] == 1 && attacker_path[t][e] == 1);
 
 // Minimise the latency between when a message is sent and when it is received (working)
 dexpr float message_latency_obj =
