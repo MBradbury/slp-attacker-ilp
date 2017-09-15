@@ -33,9 +33,10 @@ def ilp_array_dicts_eval(il_array):
     il_array = il_array.strip()
     il_array = il_array.replace(" {", ",{")
     il_array = il_array.replace("\n", ",")
-    il_array = il_array.replace("         ", " ")
+    il_array = il_array.replace("         ", "")
     il_array = il_array.replace("{", "[")
     il_array = il_array.replace("}", "]")
+    il_array = il_array.replace(" ", ",")
 
     return ast.literal_eval(il_array)
 
@@ -80,13 +81,20 @@ class Results(object):
         if hasattr(self.results, "source_ids"):
             self.results.sources = self.results.source_ids
 
+        if hasattr(self.results, "sink_id"):
+            self.results.sink_ids = {self.results.sink_id}
+
         if isinstance(self.results.coords, str):
             self.results.coords = ilp_array_tuple_eval(self.results.coords)
 
-        if isinstance(self.results.neighbours, str):
-            self.results.neighbours = ilp_array_neighbour_dicts(self.results.neighbours)
+        if hasattr(self.results, "neighbours"):
+            if isinstance(self.results.neighbours, str):
+                self.results.neighbours = ilp_array_neighbour_dicts(self.results.neighbours)
+        else:
+            self.results.neighbours_to = ilp_array_neighbour_dicts(self.results.neighbours_to)
+            self.results.neighbours_from = ilp_array_neighbour_dicts(self.results.neighbours_from)
 
-        self.graph = nx.Graph()
+        self.graph = nx.DiGraph()
         self.graph.add_nodes_from(range(1, len(results.coords)+1))
 
         # Store the coordinates
@@ -102,13 +110,22 @@ class Results(object):
             self.graph.node[nid]['shape'] = 'p'
             self.graph.node[nid]['size'] = 550
 
-        if hasattr(results, "sink_id"):
-            self.graph.node[results.sink_id]['shape'] = 'H'
-            self.graph.node[results.sink_id]['size'] = 550
+        if hasattr(self.results, "sink_ids"):
+            for sink_id in self.results.sink_ids:
+                self.graph.node[sink_id]['shape'] = 'H'
+                self.graph.node[sink_id]['size'] = 550
 
         # Add edges
-        for (nid, nid_neighbours) in results.neighbours.items():
-            self.graph.add_edges_from((nid, n) for n in nid_neighbours)
+        if hasattr(self.results, "neighbours"):
+            for (nid, nid_neighbours) in self.results.neighbours.items():
+                self.graph.add_edges_from((nid, n) for n in nid_neighbours)
+                self.graph.add_edges_from((n, nid) for n in nid_neighbours)
+        else:
+            for (nid, nid_neighbours) in self.results.neighbours_to.items():
+                self.graph.add_edges_from((n, nid) for n in nid_neighbours)
+
+            for (nid, nid_neighbours) in self.results.neighbours_from.items():
+                self.graph.add_edges_from((nid, n) for n in nid_neighbours)
 
 
         if hasattr(results, "attacker_path"):
@@ -137,12 +154,8 @@ class Results(object):
 
             for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
                 for (mess, times) in enumerate(bcasts_by_nid_at_time, start=1):
-                    if len(times) == 1:
-                        self.broadcasts_at_time[times[0]].add((nid, mess))
-                    elif len(times) == 0:
-                        pass
-                    else:
-                        raise RuntimeError("Invalid time size of {}".format(len(times)))
+                    for time in times:
+                        self.broadcasts_at_time[time].add((nid, mess))
 
         elif hasattr(results, "broadcasted_msg_at"):
             broadcasts_by_nodes_at_time = ilp_array_msgs_eval(results.broadcasted_msg_at)
@@ -158,6 +171,8 @@ class Results(object):
         self.attacker_positions = [v for (u, v) in self.attacker_moves_at_time]
 
         self.time_steps = len(self.attacker_moves_at_time)
+
+        #self.verify()
 
     def get_cmap(self):
         '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
@@ -181,3 +196,14 @@ class Results(object):
                 return "Msg"
         else:
             return "Msg"
+
+
+    def verify(self):
+        """Check if the results are sound"""
+
+        # For each broadcast, check that the attacker made a move
+        for (time, broadcasts) in enumerate(self.broadcasts_at_time):
+            attacker_move = self.attacker_moves_at_time[time]
+
+            print(time, broadcasts, attacker_move)
+
