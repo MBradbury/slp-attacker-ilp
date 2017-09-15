@@ -88,8 +88,8 @@ class Cluster(object):
 class Tinis(Cluster):
     nodes = 1
     ppn = 32      # Up to 32
-    pmem = "60gb" # Up to 1TB
-    #queue = "fat"
+    pmem = "256gb" # Up to 1TB
+    queue = "fat"
 
     def __init__(self, dry_run):
         super(Tinis, self).__init__(dry_run)
@@ -100,7 +100,7 @@ class Tinis(Cluster):
 class Orac(Cluster):
     nodes = 1
     ppn = 28      # Up to 28
-    pmem = "60gb" # Up to 128GB
+    pmem = "120gb" # Up to 128GB
 
     def __init__(self, dry_run):
         super(Orac, self).__init__(dry_run)
