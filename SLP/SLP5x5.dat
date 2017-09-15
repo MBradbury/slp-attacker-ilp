@@ -20,8 +20,10 @@ num_fake_messages = 0;
 
 // Routing Settings
 source_period = 1; // seconds between messages
-safety_period = 9.0;
+safety_period = 8.0;
 
 slots_per_second = 9;
 
 obj = 0;
+
+message_sent_once = 1;
