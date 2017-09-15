@@ -51,7 +51,7 @@ class Cluster(object):
         if notify:
             submit_command += " -m bae -M {}".format(notify)
 
-        cluster_command = "echo '{} >> ilp{}.py' | {}".format(command, job_name, submit_command)
+        cluster_command = "echo '{} >> ilp{}.txt' | {}".format(command, job_name, submit_command)
 
         self._submit_job(cluster_command)
 
