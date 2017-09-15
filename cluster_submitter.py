@@ -44,12 +44,12 @@ class Cluster(object):
         return dat + "_" + "_".join(map(str, options))
 
     def pbs_submit(self, command, job_name, walltime, notify=None, *args, **kwargs):
-        submit_command = "qsub -j oe -h -l node={}:ppn={} -l walltime={} -l mem={} -N \"{}\" -q {}".format(
+        submit_command = "msub -j oe -h -l nodes={}:ppn={} -l walltime={} -l mem={} -N \"{}\" -q {}".format(
             self.nodes, self.ppn, walltime, self.pmem, job_name, self.queue
         )
 
         if notify:
-            submit_command += " -m ae -M {}".format(notify)
+            submit_command += " -m bae -M {}".format(notify)
 
         cluster_command = "echo '{} >> ilp{}.py' | {}".format(command, job_name, submit_command)
 
@@ -72,7 +72,7 @@ class Tinis(Cluster):
     def generate_command(self, dat, options):
         options_string = " ".join("-D {}={}".format(k, v) for (k, v) in options.items())
 
-        return "oplrun -v -w -deploy -p SLP {} {}".format(dat, options_string)
+        return "oplrun -v -w -deploy {} -p SLP {}".format(options_string, dat)
 
     def submit_command(self, *args, **kwargs):
         return self.pbs_submit(*args, **kwargs)
