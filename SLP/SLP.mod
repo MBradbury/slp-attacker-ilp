@@ -18,7 +18,10 @@ tuple Message
 	int msg;
 }
 
-int obj = ...;
+int obj = ...; // The objective function to use
+
+int message_sent_once = ...; // Are node allowed to send a message more than once?
+assert message_sent_once == 1 || message_sent_once == 0;
 
 // Network
 int num_nodes = ...; // Number of nodes in the network
@@ -187,11 +190,14 @@ subject to {
 	  forall (n in Nodes)
 	    (sum (m in AllMessages) broadcasts[n][m][t]) <= 1;
 	
-	ctR04: // Once a message is sent by one node it is never sent by that node again
-	forall (m in AllMessages)
-	  forall (n in Nodes)
-	    forall (t1 in Times : t1 > 0)
-	      (broadcasts[n][m][t1] == 1) => (sum (t2 in Times : t2 > t1) broadcasts[n][m][t2]) == 0;
+	if (message_sent_once == 1)
+	{
+		ctR04: // Once a message is sent by one node it is never sent by that node again
+		forall (m in AllMessages)
+		  forall (n in Nodes)
+		    forall (t1 in Times : t1 > 0)
+		      (broadcasts[n][m][t1] == 1) => (sum (t2 in Times : t2 > t1) broadcasts[n][m][t2]) == 0;
+	}	      
 	
 	ctR05: // Source Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
@@ -241,8 +247,8 @@ subject to {
 	  forall (t in Times : t > 0)
 	    // If an attacker moves to n at t
 	    ((sum (e in AttackerEdges : e.v == n && e.u != e.v) attacker_path[t][e]) == 1) =>
-	      // Then it must be because n broadcasted m
-	      (sum (m in AllMessages) broadcasts[n][m][t]) == 1;
+	      // Then it must be because n broadcasted a message
+	      (sum (m in AllMessages) broadcasts[n][m][t]) == 1;	 
 	  	
 	// The attacker only moves when a message is sent and that message has not been previously responded to
 	ctA05: // Attacker can only move in response to sent messages
@@ -284,8 +290,8 @@ execute
 	writeln("neighbours_to = \"\"\"", NeighboursTo, "\"\"\"")
 	writeln("neighbours_from = \"\"\"", NeighboursFrom, "\"\"\"")
 	writeln("range = ", comms_range)
-	writeln("source_ids = ", SourceIDs)
-	writeln("sink_ids = ", SinkIDs)
+	writeln("sources = ", SourceIDs)
+	writeln("sinks = ", SinkIDs)
 	writeln("attacker_start_pos = ", attacker_start_pos)
 	writeln("attacker_range = ", attacker_range)
 	writeln("attacker_neighbours_to = \"\"\"", AttackerNeighboursTo, "\"\"\"")
@@ -296,7 +302,8 @@ execute
 	writeln("slots_per_second = ", slots_per_second)
 	writeln("source_period = ", source_period)
 	writeln("safety_period = ", safety_period)
-	writeln("objective = ", obj)
+	writeln("message_sent_once = ", message_sent_once) // ctR04 enabled or not
+	writeln("objective_function = ", obj)
 	
 	writeln("attacker_source_distance_obj = ", -attacker_source_distance_obj)
 	writeln("attacker_find_source_obj = ", attacker_find_source_obj)

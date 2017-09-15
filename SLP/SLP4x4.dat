@@ -24,3 +24,5 @@ safety_period = 7.0;
 slots_per_second = 7;
 
 obj = 0;
+
+message_sent_once = 1;
