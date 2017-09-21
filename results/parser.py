@@ -10,6 +10,10 @@ import matplotlib.cm as cmx
 
 import networkx as nx
 
+class IncompleteResultFileError(RuntimeError):
+    def __init__(self, file_path):
+        super(IncompleteResultFileError, self).__init__("The results file {} is incomplete.".format(file_path))
+
 def ilp_array_tuple_set_eval(il_array):
     il_array = il_array.strip()
     il_array = il_array.replace("\n", "")
@@ -62,13 +66,18 @@ class Results(object):
         results = self._parse_file(results_name)
         self.results = results
 
+        if not hasattr(results, "coords"):
+            raise IncompleteResultFileError(results_name)
+
         results.coords = ilp_array_tuple_eval(results.coords)
 
         results.neighbours_to = ilp_array_neighbour_dicts(results.neighbours_to)
         results.neighbours_from = ilp_array_neighbour_dicts(results.neighbours_from)
 
+        self.nodes = list(range(1, len(results.coords)+1))
+
         self.graph = nx.DiGraph()
-        self.graph.add_nodes_from(range(1, len(results.coords)+1))
+        self.graph.add_nodes_from(self.nodes)
 
         # Store the coordinates
         for (nid, coord) in enumerate(results.coords, start=1):

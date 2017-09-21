@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-from results.parser import Results
+from results.parser import Results, IncompleteResultFileError
 
 TimeNid = namedtuple("TimeNid", ("time", "nid"))
 
@@ -167,9 +167,15 @@ args = parser.parse_args(sys.argv[1:])
 for result in args.results:
     print("Creating graph for ", result)
 
-    drawer = ILPMessageDrawer(result, output_format=args.format)
+    try:
+        drawer = ILPMessageDrawer(result, output_format=args.format)
+    except IncompleteResultFileError as ex:
+        print(ex)
+        continue
 
     if args.combine:
         drawer.draw_all_together(show=not args.no_show)
     else:
         drawer.draw_all()
+
+    plt.clf()

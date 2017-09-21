@@ -10,7 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from results.parser import Results
+from results.parser import Results, IncompleteResultFileError
 
 font = {"size": "18"}
 
@@ -80,7 +80,7 @@ class ILPAttackerDrawer(object):
 
         if self.with_node_id:
             ax.set_xlabel("Node ID", **font)
-            ax.set_xticks(self.r.results.neighbours.keys())
+            ax.set_xticks(self.r.nodes)
         else:
             for (x, t, label, target) in self.moves:
                 ax.annotate(target,
@@ -123,6 +123,10 @@ args = parser.parse_args(sys.argv[1:])
 for result in args.results:
     print("Creating graph for ", result)
 
-    drawer = ILPAttackerDrawer(result, output_format=args.format, with_node_id=args.with_node_id)
+    try:
+        drawer = ILPAttackerDrawer(result, output_format=args.format, with_node_id=args.with_node_id)
+    except IncompleteResultFileError as ex:
+        print(ex)
+        continue
 
     drawer.draw(show=not args.no_show)
