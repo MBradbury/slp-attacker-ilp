@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+from datetime import timedelta
 import itertools
 import subprocess
 import sys
@@ -27,19 +28,16 @@ option_keys = ("obj", "num_fake_messages", "message_sent_once")
 
 def estimate_walltime(dat, options):
     if dat == "3x3":
-        return "01:00:00"
+        return timedelta(hours=1)
     elif dat == "4x4":
         if options["obj"] == 4:
-            return "48:00:00"
+            return timedelta(hours=48)
         else:
-            return "16:00:00"
+            return timedelta(hours=16)
     elif dat == "5x5":
-        if options["obj"] in {3, 4}:
-            return "96:00:00"
-        else:
-            return "48:00:00"
+        return timedelta(hours=48)
     else:
-        return "60:00:00"
+        return timedelta(hours=48)
 
 
 class Cluster(object):
@@ -54,9 +52,16 @@ class Cluster(object):
 
         return "oplrun -v -w -deploy {} -p SLP {}".format(options_string, dat)
 
+    def _walltime_to_str(self, walltime):
+        total_seconds = int(walltime.total_seconds())
+        hours, remainder = divmod(total_seconds, 60*60)
+        minutes, seconds = divmod(remainder, 60)
+
+        return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
+
     def moab_submit(self, command, job_name, walltime, notify=None, hold=False, *args, **kwargs):
         submit_command = "msub -j oe -l nodes={}:ppn={} -l walltime={} -l mem={} -N \"{}\"".format(
-            self.nodes, self.ppn, walltime, self.pmem, job_name
+            self.nodes, self.ppn, self._walltime_to_str(walltime), self.pmem, job_name
         )
 
         if hasattr(self, "queue"):
@@ -70,6 +75,10 @@ class Cluster(object):
 
         cluster_command = "echo '{} >> ilp{}.txt' | {}".format(command, job_name, submit_command)
 
+        if hasattr(self, "max_walltime"):
+            if walltime > self.max_walltime:
+                raise RuntimeError("Unable to queue \"{}\" as its walltime is above the maximum".format(cluster_command))
+
         self._submit_job(cluster_command)
 
     def _submit_job(self, command):
@@ -82,20 +91,24 @@ class Cluster(object):
 
         for dat in dats:
             for options in option_product:
-                options_dict = dict(zip(option_keys, options))
+                try:
+                    options_dict = dict(zip(option_keys, options))
 
-                walltime = estimate_walltime(dat, options_dict)
+                    walltime = estimate_walltime(dat, options_dict)
 
-                command = self.generate_command(dat, options_dict)
-                job_name = self.job_name(dat, options)
+                    command = self.generate_command(dat, options_dict)
+                    job_name = self.job_name(dat, options)
 
-                self.submit_command(command, job_name, walltime=walltime, **kwargs)
+                    self.submit_command(command, job_name, walltime=walltime, **kwargs)
+                except RuntimeError as ex:
+                    print(ex)
 
 class Tinis(Cluster):
     nodes = 1
     ppn = 32      # Up to 32
     pmem = "256gb" # Up to 1TB
     queue = "fat"
+    max_walltime = timedelta(seconds=172800)
 
     def __init__(self, dry_run):
         super(Tinis, self).__init__(dry_run)
