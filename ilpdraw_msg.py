@@ -120,14 +120,6 @@ class ILPMessageDrawer(object):
 
         print(graph.edges())
 
-        """pos = nx.get_node_attributes(graph, 'pos')
-
-        nx.draw(graph, pos,
-                node_color=["w"] * len(pos),
-                labels=nx.get_node_attributes(graph, 'label'),
-                edge_color=self.message_colours[msg-1], width=3.5, arrows=True)
-        nx.draw_networkx_edge_labels(graph, pos=pos, edge_labels=edges)"""
-
         node_shapes = {node_data['shape'] for (node, node_data) in graph.nodes(data=True)}
         
         pos = nx.get_node_attributes(graph, 'pos')
@@ -140,12 +132,14 @@ class ILPMessageDrawer(object):
             color = [col[nid] for nid in nodes]
             size = [sizes[nid] for nid in nodes]
 
-            nx.draw_networkx_nodes(graph, pos,
+            drawn_nodes = nx.draw_networkx_nodes(graph, pos,
                 node_shape=shape,
                 node_color=color,
                 node_size=size,
                 nodelist=nodes,
             )
+
+            drawn_nodes.set_edgecolor('black')
 
         nx.draw_networkx_edges(graph, pos,
             edge_color=self.message_colours[msg-1],
