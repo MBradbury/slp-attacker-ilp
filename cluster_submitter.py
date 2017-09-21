@@ -34,7 +34,10 @@ def estimate_walltime(dat, options):
         else:
             return "16:00:00"
     elif dat == "5x5":
-        return "48:00:00"
+        if options["obj"] in {3, 4}:
+            return "96:00:00"
+        else:
+            return "48:00:00"
     else:
         return "60:00:00"
 
