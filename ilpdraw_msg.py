@@ -171,10 +171,6 @@ parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
 args = parser.parse_args(sys.argv[1:])
 
 for result in args.results:
-    result = result.replace("/", ".")
-    if result.endswith(".py"):
-        result = result[:-3]
-
     print("Creating graph for ", result)
 
     drawer = ILPMessageDrawer(result, output_format=args.format)

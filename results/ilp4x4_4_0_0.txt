@@ -1,0 +1,21 @@
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50549e+09s
+
+
+<<< generate, at 0.02s, took 0.0217221s
+
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50581e+09s
+
+
+<<< generate, at 0.02s, took 0.248683s
+
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50589e+09s
+
+
+<<< generate, at 0.02s, took 0.0230179s
+

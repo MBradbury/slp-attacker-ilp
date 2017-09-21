@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import ast
+from collections import OrderedDict
 import importlib
 import re
 
@@ -8,15 +9,6 @@ import matplotlib.colors as colors
 import matplotlib.cm as cmx
 
 import networkx as nx
-
-def ilp_ndarray_str_eval(il_array):
-    il_array = il_array.strip()
-    il_array = il_array.replace("\n", " ")
-    il_array = il_array.replace("0 ", "0, ")
-    il_array = il_array.replace("1 ", "1, ")
-    il_array = il_array.replace("]", "],")
-
-    return ast.literal_eval(il_array[:-1])
 
 def ilp_array_tuple_set_eval(il_array):
     il_array = il_array.strip()
@@ -36,14 +28,6 @@ def ilp_array_dicts_eval(il_array):
     il_array = il_array.replace("         ", "")
     il_array = il_array.replace("{", "[")
     il_array = il_array.replace("}", "]")
-    il_array = il_array.replace(" ", ",")
-
-    return ast.literal_eval(il_array)
-
-def ilp_array_msgs_eval(il_array):
-    il_array = il_array.strip()
-    il_array = il_array.replace("\n", ",")
-    il_array = il_array.replace("         ", "")
     il_array = il_array.replace(" ", ",")
 
     return ast.literal_eval(il_array)
@@ -75,24 +59,13 @@ class Results(object):
     def __init__(self, results_name):
         self.results_name = results_name
 
-        results = importlib.import_module(results_name)
+        results = self._parse_file(results_name)
         self.results = results
 
-        if hasattr(self.results, "source_ids"):
-            self.results.sources = self.results.source_ids
+        results.coords = ilp_array_tuple_eval(results.coords)
 
-        if hasattr(self.results, "sink_id"):
-            self.results.sink_ids = {self.results.sink_id}
-
-        if isinstance(self.results.coords, str):
-            self.results.coords = ilp_array_tuple_eval(self.results.coords)
-
-        if hasattr(self.results, "neighbours"):
-            if isinstance(self.results.neighbours, str):
-                self.results.neighbours = ilp_array_neighbour_dicts(self.results.neighbours)
-        else:
-            self.results.neighbours_to = ilp_array_neighbour_dicts(self.results.neighbours_to)
-            self.results.neighbours_from = ilp_array_neighbour_dicts(self.results.neighbours_from)
+        results.neighbours_to = ilp_array_neighbour_dicts(results.neighbours_to)
+        results.neighbours_from = ilp_array_neighbour_dicts(results.neighbours_from)
 
         self.graph = nx.DiGraph()
         self.graph.add_nodes_from(range(1, len(results.coords)+1))
@@ -110,69 +83,79 @@ class Results(object):
             self.graph.node[nid]['shape'] = 'p'
             self.graph.node[nid]['size'] = 550
 
-        if hasattr(self.results, "sink_ids"):
-            for sink_id in self.results.sink_ids:
-                self.graph.node[sink_id]['shape'] = 'H'
-                self.graph.node[sink_id]['size'] = 550
+        for sink_id in results.sinks:
+            self.graph.node[sink_id]['shape'] = 'H'
+            self.graph.node[sink_id]['size'] = 550
 
         # Add edges
-        if hasattr(self.results, "neighbours"):
-            for (nid, nid_neighbours) in self.results.neighbours.items():
-                self.graph.add_edges_from((nid, n) for n in nid_neighbours)
-                self.graph.add_edges_from((n, nid) for n in nid_neighbours)
-        else:
-            for (nid, nid_neighbours) in self.results.neighbours_to.items():
-                self.graph.add_edges_from((n, nid) for n in nid_neighbours)
+        for (nid, nid_neighbours) in results.neighbours_to.items():
+            self.graph.add_edges_from((n, nid) for n in nid_neighbours)
 
-            for (nid, nid_neighbours) in self.results.neighbours_from.items():
-                self.graph.add_edges_from((nid, n) for n in nid_neighbours)
+        for (nid, nid_neighbours) in results.neighbours_from.items():
+            self.graph.add_edges_from((nid, n) for n in nid_neighbours)
 
 
-        if hasattr(results, "attacker_path"):
-            attacker_path = ilp_ndarray_str_eval(results.attacker_path)
-
-            self.attacker_moves_at_time = [results.attacker_edges[moves.index(1)] for moves in attacker_path]
-        else:
-            self.attacker_moves_at_time = ilp_array_tuple_set_eval(results.used_edges)
-
+        self.attacker_moves_at_time = ilp_array_tuple_set_eval(results.used_edges)
 
         self.broadcasts_at_time = [set() for _ in self.attacker_moves_at_time]
-
-        if hasattr(results, "broadcasts"):
-            broadcasts = ilp_ndarray_str_eval(results.broadcasts)
-
-            for (nid, mess_and_time) in enumerate(broadcasts, start=1):
-                for (mess, times) in enumerate(mess_and_time, start=1):
-                    try:
-                        time = times.index(1)
-
-                        self.broadcasts_at_time[time].add((nid, mess))
-                    except ValueError:
-                        pass
-        elif hasattr(results, "broadcasted_at"):
-            broadcasts_by_nodes_at_time = ilp_array_dicts_eval(results.broadcasted_at)
-
-            for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
-                for (mess, times) in enumerate(bcasts_by_nid_at_time, start=1):
-                    for time in times:
-                        self.broadcasts_at_time[time].add((nid, mess))
-
-        elif hasattr(results, "broadcasted_msg_at"):
-            broadcasts_by_nodes_at_time = ilp_array_msgs_eval(results.broadcasted_msg_at)
-
-            for (nid, bcasts_by_nid_at_time) in enumerate(broadcasts_by_nodes_at_time, start=1):
-                for (time, mess) in enumerate(bcasts_by_nid_at_time, start=0):
-                    if mess != 0:
-                        self.broadcasts_at_time[time].add((nid, mess))
-        else:
-            raise RuntimeError("Unknown broadcasted field")
-
+        for (nid, bcasts_by_nid_at_time) in enumerate(ilp_array_dicts_eval(results.broadcasted_at), start=1):
+            for (mess, times) in enumerate(bcasts_by_nid_at_time, start=1):
+                for time in times:
+                    self.broadcasts_at_time[time].add((nid, mess))
 
         self.attacker_positions = [v for (u, v) in self.attacker_moves_at_time]
 
         self.time_steps = len(self.attacker_moves_at_time)
 
         #self.verify()
+
+    def _parse_file(self, file_name):
+        meta_data_re = re.compile(r"<<< ([a-z ]+), at ([0-9.e+-]+)s, took ([0-9.e+-]+)s")
+        other_data_re = re.compile(r"([a-zA-Z ]+): (.+)")
+        solution_re = re.compile(r"// solution with objective (.+)")
+
+        time_info = OrderedDict()
+        info = {}
+        objective = None
+
+        lines = []
+
+        with open(file_name, "r") as input_file:
+            for line in input_file:
+
+                match = meta_data_re.match(line)
+                if match is not None:
+                    time_info[match.group(1)] = (float(match.group(2)), float(match.group(3)))
+                    continue
+
+                match = other_data_re.match(line)
+                if match is not None:
+                    info[match.group(1)] = match.group(2)
+                    continue
+
+                match = solution_re.match(line)
+                if match is not None:
+                    objective = float(match.group(1))
+                    continue
+
+                if objective is None:
+                    lines.append(line)
+
+        gvar, lvar = OrderedDict(), OrderedDict()
+
+        exec("".join(lines), gvar, lvar)
+
+        print(time_info)
+        print(info)
+
+        class Result:
+            def __init__(self, **kwargs):
+                for (k, v) in kwargs.items():
+                    setattr(self, k, v)
+
+        return Result(**lvar)
+
+
 
     def get_cmap(self):
         '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
@@ -197,7 +180,6 @@ class Results(object):
         else:
             return "Msg"
 
-
     def verify(self):
         """Check if the results are sound"""
 
@@ -206,4 +188,3 @@ class Results(object):
             attacker_move = self.attacker_moves_at_time[time]
 
             print(time, broadcasts, attacker_move)
-

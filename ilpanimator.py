@@ -117,10 +117,6 @@ if not os.path.exists('out'):
         os.makedirs('out')
 
 for result in args.results:
-    result = result.replace("/", ".")
-    if result.endswith(".py"):
-        result = result[:-3]
-
     print("Animating {}".format(result))
 
     anim = ILPAnimator(result)

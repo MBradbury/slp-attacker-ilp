@@ -75,10 +75,6 @@ parser.add_argument("--no-show", action='store_true', default=False)
 args = parser.parse_args(sys.argv[1:])
 
 for result in args.results:
-    result = result.replace("/", ".")
-    if result.endswith(".py"):
-        result = result[:-3]
-
     print("Creating graph for ", result)
 
     drawer = ILPAttackerDrawer(result)
