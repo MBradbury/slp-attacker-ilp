@@ -50,7 +50,7 @@ class Cluster(object):
     def generate_command(self, dat, options):
         options_string = " ".join("-D {}={}".format(k, v) for (k, v) in options.items())
 
-        return "oplrun -v -w -deploy {} -p SLP {}".format(options_string, dat)
+        return "oplrun -v -w -deploy -profile {} -p SLP {}".format(options_string, dat)
 
     def _walltime_to_str(self, walltime):
         total_seconds = int(walltime.total_seconds())
