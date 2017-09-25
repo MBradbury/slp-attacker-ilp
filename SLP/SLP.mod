@@ -290,33 +290,48 @@ subject to {
 
 execute
 {
-	writeln("coords = \"\"\"", Coordinates, "\"\"\"")
-	writeln("neighbours_to = \"\"\"", NeighboursTo, "\"\"\"")
-	writeln("neighbours_from = \"\"\"", NeighboursFrom, "\"\"\"")
-	writeln("range = ", comms_range)
-	writeln("sources = ", SourceIDs)
-	writeln("sinks = ", SinkIDs)
-	writeln("attacker_start_pos = ", attacker_start_pos)
-	writeln("attacker_range = ", attacker_range)
-	writeln("attacker_neighbours_to = \"\"\"", AttackerNeighboursTo, "\"\"\"")
-	writeln("attacker_neighbours_from = \"\"\"", AttackerNeighboursFrom, "\"\"\"")
-	writeln("normal_messages = ", num_normal_messages)
-	writeln("fake_messages = ", num_fake_messages)
-	writeln("messages = ", num_total_messages)
-	writeln("slots_per_second = ", slots_per_second)
-	writeln("source_period = ", source_period)
-	writeln("safety_period = ", safety_period)
-	writeln("message_sent_once = ", message_sent_once) // ctR04 enabled or not
-	writeln("objective_function = ", obj)
+	writeln("coords = \"\"\"", Coordinates, "\"\"\"");
+	writeln("neighbours_to = \"\"\"", NeighboursTo, "\"\"\"");
+	writeln("neighbours_from = \"\"\"", NeighboursFrom, "\"\"\"");
+	writeln("range = ", comms_range);
+	writeln("sources = ", SourceIDs);
+	writeln("sinks = ", SinkIDs);
+	writeln("attacker_start_pos = ", attacker_start_pos);
+	writeln("attacker_range = ", attacker_range);
+	writeln("attacker_neighbours_to = \"\"\"", AttackerNeighboursTo, "\"\"\"");
+	writeln("attacker_neighbours_from = \"\"\"", AttackerNeighboursFrom, "\"\"\"");
+	writeln("normal_messages = ", num_normal_messages);
+	writeln("fake_messages = ", num_fake_messages);
+	writeln("messages = ", num_total_messages);
+	writeln("slots_per_second = ", slots_per_second);
+	writeln("source_period = ", source_period);
+	writeln("safety_period = ", safety_period);
+	writeln("message_sent_once = ", message_sent_once); // ctR04 enabled or not
+	writeln("objective_function = ", obj);
 	
-	writeln("attacker_source_distance_obj = ", -attacker_source_distance_obj)
-	writeln("attacker_find_source_obj = ", attacker_find_source_obj)
-	writeln("energy_usage_obj = ", energy_usage_obj)
-	writeln("min_attacker_moves_obj = ", min_attacker_moves_obj)
-	writeln("message_latency_obj = ", message_latency_obj)
-	writeln("max_attacker_moves_obj = ", max_attacker_moves_obj)
+	writeln("attacker_source_distance_obj = ", -attacker_source_distance_obj);
+	writeln("attacker_find_source_obj = ", attacker_find_source_obj);
+	writeln("energy_usage_obj = ", energy_usage_obj);
+	writeln("min_attacker_moves_obj = ", min_attacker_moves_obj);
+	writeln("message_latency_obj = ", message_latency_obj);
+	writeln("max_attacker_moves_obj = ", max_attacker_moves_obj);
 	
-	writeln("used_edges = \"\"\"", Used, "\"\"\"")
-	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"")
-	writeln("message_latency = \"\"\"", message_latency, "\"\"\"")
+	writeln("used_edges = \"\"\"", Used, "\"\"\"");
+	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"");
+	writeln("message_latency = \"\"\"", message_latency, "\"\"\"");
+}
+
+main
+{
+	var nbsol = 0;
+	thisOplModel.generate();
+	cp.startNewSearch();
+	
+	while (cp.next())
+	{
+		nbsol++;
+		writeln("// solution ", nbsol, " with objective ", cp.getObjValue());
+		thisOplModel.postProcess();
+		writeln();
+	}
 }
