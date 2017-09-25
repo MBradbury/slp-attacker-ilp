@@ -106,7 +106,7 @@ class Cluster(object):
 class Tinis(Cluster):
     nodes = 1
     ppn = 32      # Up to 32
-    pmem = "256gb" # Up to 1TB
+    pmem = "512gb" # Up to 1TB
     queue = "fat"
     max_walltime = timedelta(seconds=172800)
 
@@ -127,6 +127,16 @@ class Orac(Cluster):
     def submit_command(self, *args, **kwargs):
         return self.moab_submit(*args, **kwargs)
 
+class Chiron(Cluster):
+    nodes = 1
+    ppn = 96      # Up to 96
+    pmem = "512gb" # Up to 1TB
+
+    def __init__(self, dry_run):
+        super(Chiron, self).__init__(dry_run)
+
+    def submit_command(self, *args, **kwargs):
+        return self.moab_submit(*args, **kwargs)
 
 def cluster_names():
     return [cluster.__name__ for cluster in Cluster.__subclasses__()]
