@@ -1,9 +1,11 @@
 from __future__ import print_function, division
 
 import ast
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import importlib
 import re
+
+from attrdict import AttrDict
 
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -60,27 +62,26 @@ def ilp_array_neighbour_dicts(il_array):
     return {k: set(v) for (k, v) in enumerate(arr, start=1)}
 
 class Results(object):
-    def __init__(self, results_name):
-        self.results_name = results_name
+    def __init__(self, results, objective, name):
+        #self.results = results
+        self.objective = objective
+        self.name = name
 
-        results = self._parse_file(results_name)
-        self.results = results
+        for (k, v) in results.items():
+            setattr(self, k, v)
 
-        if not hasattr(results, "coords"):
-            raise IncompleteResultFileError(results_name)
+        self.coords = ilp_array_tuple_eval(results.coords)
 
-        results.coords = ilp_array_tuple_eval(results.coords)
+        self.neighbours_to = ilp_array_neighbour_dicts(results.neighbours_to)
+        self.neighbours_from = ilp_array_neighbour_dicts(results.neighbours_from)
 
-        results.neighbours_to = ilp_array_neighbour_dicts(results.neighbours_to)
-        results.neighbours_from = ilp_array_neighbour_dicts(results.neighbours_from)
-
-        self.nodes = list(range(1, len(results.coords)+1))
+        self.nodes = list(range(1, len(self.coords)+1))
 
         self.graph = nx.DiGraph()
         self.graph.add_nodes_from(self.nodes)
 
         # Store the coordinates
-        for (nid, coord) in enumerate(results.coords, start=1):
+        for (nid, coord) in enumerate(self.coords, start=1):
             self.graph.node[nid]['pos'] = coord
             self.graph.node[nid]['label'] = nid
 
@@ -88,19 +89,19 @@ class Results(object):
             self.graph.node[nid]['shape'] = 'o'
             self.graph.node[nid]['size'] = 350
 
-        for nid in results.sources:
+        for nid in self.sources:
             self.graph.node[nid]['shape'] = 'p'
             self.graph.node[nid]['size'] = 550
 
-        for sink_id in results.sinks:
+        for sink_id in self.sinks:
             self.graph.node[sink_id]['shape'] = 'H'
             self.graph.node[sink_id]['size'] = 550
 
         # Add edges
-        for (nid, nid_neighbours) in results.neighbours_to.items():
+        for (nid, nid_neighbours) in self.neighbours_to.items():
             self.graph.add_edges_from((n, nid) for n in nid_neighbours)
 
-        for (nid, nid_neighbours) in results.neighbours_from.items():
+        for (nid, nid_neighbours) in self.neighbours_from.items():
             self.graph.add_edges_from((nid, n) for n in nid_neighbours)
 
 
@@ -118,16 +119,22 @@ class Results(object):
 
         #self.verify()
 
-    def _parse_file(self, file_name):
+    @staticmethod
+    def parse_file(file_name):
         meta_data_re = re.compile(r"<<< ([a-z ]+), at ([0-9.e+-]+)s, took ([0-9.e+-]+)s")
         other_data_re = re.compile(r"([a-zA-Z ]+): (.+)")
-        solution_re = re.compile(r"// solution with objective (.+)")
+        solution_re = re.compile(r"// solution ([0-9]+) with objective (.+)")
+        main_return_re = re.compile(r"main returns ([0-9]+)")
 
         time_info = OrderedDict()
         info = {}
-        objective = None
+        objectives = {}
+        solution_number = None
+        profiles = defaultdict(list)
 
-        lines = []
+        read_profile = False
+
+        lines = defaultdict(list)
 
         with open(file_name, "r") as input_file:
             for line in input_file:
@@ -135,6 +142,10 @@ class Results(object):
                 match = meta_data_re.match(line)
                 if match is not None:
                     time_info[match.group(1)] = (float(match.group(2)), float(match.group(3)))
+
+                    if match.group(1) == "profile":
+                        read_profile = False
+
                     continue
 
                 match = other_data_re.match(line)
@@ -144,32 +155,54 @@ class Results(object):
 
                 match = solution_re.match(line)
                 if match is not None:
-                    objective = float(match.group(1))
+                    solution_number = int(match.group(1))
+                    objectives[solution_number] = float(match.group(2))
                     continue
 
-                if objective is None:
-                    lines.append(line)
+                match = main_return_re.match(line)
+                if match is not None:
+                    ret = int(match.group(1))
+                    if ret != 0:
+                        print("Main returned error code {}".format(ret))
+                    continue
 
-        gvar, lvar = OrderedDict(), OrderedDict()
+                if line.startswith('Profiler Report'):
+                    read_profile = True
+                    continue
 
-        exec("".join(lines), gvar, lvar)
+                if read_profile:
+                    profiles[solution_number].append(line)
+                    continue
 
-        print(time_info)
-        print(info)
+                if solution_number is not None:
+                    lines[solution_number].append(line)
 
-        class Result:
-            def __init__(self, **kwargs):
-                for (k, v) in kwargs.items():
-                    setattr(self, k, v)
+        results = []
 
-        return Result(**lvar)
+        for (solno, solno_lines) in lines.items():
+
+            gvar, lvar = AttrDict(), AttrDict()
+
+            exec("".join(solno_lines), gvar, lvar)
+
+            if len(lvar) == 0:
+                raise IncompleteResultFileError(results_name)
+
+            #print(time_info)
+            #print(info)
+
+            result = Results(lvar, objective=objectives[solno], name=file_name)
+
+            results.append(result)
+
+        return results
 
 
 
     def get_cmap(self):
         '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
         RGBA color.'''
-        N = self.results.messages
+        N = self.messages
         color_norm  = colors.Normalize(vmin=0, vmax=N)
         scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
         def map_index_to_rgb_color(index):
@@ -178,14 +211,11 @@ class Results(object):
 
     def message_colours(self):
         colour_map = self.get_cmap()
-        return [str(colors.rgb2hex(colour_map(i))) for i in range(self.results.messages)]
+        return [str(colors.rgb2hex(colour_map(i))) for i in range(self.messages)]
 
     def msg_label(self, num):
-        if hasattr(self.results, "fake_messages"):
-            if num > self.results.normal_messages:
-                return "FMsg"
-            else:
-                return "Msg"
+        if hasattr(self, "fake_messages") and num > self.normal_messages:
+            return "FMsg"
         else:
             return "Msg"
 

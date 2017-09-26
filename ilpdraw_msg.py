@@ -27,11 +27,10 @@ def trim_whitespace(file):
         raise RuntimeError("Unknown file type")
 
 class ILPMessageDrawer(object):
-    def __init__(self, results_name, output_format):
-        self.results_name = results_name
+    def __init__(self, results, iteration, output_format):
+        self.r = results
+        self.iteration = iteration
         self.output_format = output_format
-
-        self.r = Results(results_name)
 
         real_moves = defaultdict(list)
 
@@ -46,12 +45,12 @@ class ILPMessageDrawer(object):
         self.message_colours = self.r.message_colours()
 
     def draw_all(self):
-        out_dir = os.path.join("out", self.results_name.replace(".", "_"))
+        out_dir = os.path.join("out", self.results.name.replace(".", "_"), self.iteration)
 
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
-        num_messages = self.r.results.messages
+        num_messages = self.r.messages
 
         for msg in range(1, num_messages+1):
 
@@ -72,7 +71,7 @@ class ILPMessageDrawer(object):
 
     def draw_all_together(self, show=True):
 
-        num_messages = self.r.results.messages
+        num_messages = self.r.messages
         x = math.floor(math.sqrt(num_messages))
         y = math.ceil(num_messages / x)
 
@@ -92,7 +91,7 @@ class ILPMessageDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_msg.{}'.format(self.results_name.replace(".", "_"), self.output_format)
+        file = 'out/{}_{}_msg.{}'.format(self.r.name.replace(".", "_"), self.iteration, self.output_format)
         plt.savefig(file)
         trim_whitespace(file)
 
@@ -156,26 +155,34 @@ class ILPMessageDrawer(object):
             font_size=12
         )
 
-parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
-parser.add_argument("results", metavar="R", nargs="+")
-parser.add_argument("--no-show", action='store_true', default=False)
-parser.add_argument("--combine", action='store_true', default=False)
-parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
+def main():
+    parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
+    parser.add_argument("results", metavar="R", nargs="+")
+    parser.add_argument("--no-show", action='store_true', default=False)
+    parser.add_argument("--combine", action='store_true', default=False)
+    parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
 
-args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(sys.argv[1:])
 
-for result in args.results:
-    print("Creating graph for ", result)
+    for result_name in args.results:
+        print("Creating graph for ", result_name)
 
-    try:
-        drawer = ILPMessageDrawer(result, output_format=args.format)
-    except IncompleteResultFileError as ex:
-        print(ex)
-        continue
+        try:
+            results_data = Results.parse_file(result_name)
+        except IncompleteResultFileError as ex:
+            print(ex)
+            continue
 
-    if args.combine:
-        drawer.draw_all_together(show=not args.no_show)
-    else:
-        drawer.draw_all()
+        for (i, result_data) in enumerate(results_data):
 
-    plt.clf()
+            drawer = ILPMessageDrawer(result_data, i, output_format=args.format)
+
+            if args.combine:
+                drawer.draw_all_together(show=not args.no_show)
+            else:
+                drawer.draw_all()
+
+            plt.clf()
+
+if __name__ == "__main__":
+    main()
