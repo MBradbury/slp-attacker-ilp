@@ -1,0 +1,176 @@
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50638e+09s
+
+// solution 1 with objective 0
+coords = """ [ <0 0>  <1 0>  <2 0>  <3 0>  <0 1>  <1 1>  <2 1>  <3 1>  <0 2> 
+     <1 2>  <2 2>  <3 2>  <0 3>  <1 3>  <2 3>  <3 3>]"""
+neighbours_to = """ [{2 5} {1 3 6} {2 4 7} {3 8} {1 6 9} {2 5 7 10} {3 6 8 11} {4 7 12} {5 10 13}
+         {6 9 11 14} {7 10 12 15} {8 11 16} {9 14} {10 13 15} {11 14 16} {12
+         15}]"""
+neighbours_from = """ [{2 5} {1 3 6} {2 4 7} {3 8} {1 6 9} {2 5 7 10} {3 6 8 11} {4 7 12} {5 10 13}
+         {6 9 11 14} {7 10 12 15} {8 11 16} {9 14} {10 13 15} {11 14 16} {12
+         15}]"""
+range = 1
+sources =  {1}
+sinks =  {16}
+attacker_start_pos = 16
+attacker_range = 1
+attacker_neighbours_to = """ [{2 5} {3 6} {2 4 7} {3 8} {6 9} {2 5 7 10} {3 6 8 11} {4 7 12} {5 10 13} {6
+         9 11 14} {7 10 12 15} {8 11 16} {9 14} {10 13 15} {11 14 16} {12 15}]"""
+attacker_neighbours_from = """ [{} {1 3 6} {2 4 7} {3 8} {1 6 9} {2 5 7 10} {3 6 8 11} {4 7 12} {5 10 13}
+         {6 9 11 14} {7 10 12 15} {8 11 16} {9 14} {10 13 15} {11 14 16} {12
+         15}]"""
+normal_messages = 7
+fake_messages = 3
+messages = 10
+slots_per_second = 7
+source_period = 1
+safety_period = 7
+message_sent_once = 1
+objective_function = 1
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 48
+min_attacker_moves_obj = 5
+message_latency_obj = 174
+max_attacker_moves_obj = -5
+used_edges = """ [{<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {<16 16>} {
+        <16 16>} {<16 16>} {<16 12>} {<12 8>} {<8 4>} {<4 8>} {
+        <8 8>} {<8 7>}]"""
+broadcasted_at = """ [[{1} {8} {15} {22} {29} {36} {43} {} {} {48}]
+         [{} {40} {} {38} {} {} {} {} {} {47}]
+         [{} {42} {} {39} {} {} {} {} {} {}]
+         [{} {43} {} {} {} {} {} {46} {} {}]
+         [{25} {} {42} {} {34} {45} {44} {} {} {}]
+         [{27} {} {43} {} {} {} {} {} {} {}]
+         [{43} {} {} {40} {} {49} {} {} {} {}]
+         [{45} {44} {} {} {} {} {} {} {} {47}]
+         [{} {} {} {} {35} {46} {45} {} {} {}]
+         [{} {} {44} {} {39} {47} {} {} {45} {}]
+         [{} {} {} {43} {42} {48} {} {} {} {}]
+         [{49} {45} {} {44} {47} {} {} {} {} {}]
+         [{} {} {} {} {} {} {46} {} {} {}]
+         [{} {} {45} {} {} {} {47} {} {} {}]
+         [{} {} {46} {} {} {49} {48} {} {} {}]
+         [{} {} {} {} {} {} {} {} {} {}]]"""
+message_latency = """ [48 37 31 22 18 13 5]"""
+
+main returns 0
+
+<<< main, at 8240.35s, took 1144.73s
+
+
+<<< done, at 8240.35s, took 1.5974e-05s
+
+Profiler Report
+     Time      PeakMemory      SelfTime        LocalMem       Count  Nodes Description
+ 1144697.774  100%   1.072 G  100%  43.196    0%   3.903 M    0%     1    100  TOTAL 
+    0.004    0%       0 B    0%   0.004    0%     256 B    0%     1      1    READING MODEL DEFINITION SLP
+   13.782    0%   1.284 M    0%   3.582    0%   1.239 M    0%     1     49    LOADING MODEL 4x4-0x2a0b3b8
+    0.932    0%  50.078 K    0%   0.272    0%  37.617 K    0%     1     16      LOADING DATA SLP/SLP4x4.dat
+    0.059    0%  31.469 K    0%   0.059    0%       0 B    0%     1      1        INIT num_nodes at 27:1-21 SLP/SLP.mod
+    0.018    0%       0 B    0%   0.018    0%       0 B    0%     1      1        INIT comms_range at 28:1-25 SLP/SLP.mod
+    0.083    0%       0 B    0%   0.083    0%     240 B    0%     1      1        INIT SourceIDs at 29:1-23 SLP/SLP.mod
+    0.011    0%       0 B    0%   0.011    0%     232 B    0%     1      1        INIT SinkIDs at 30:1-21 SLP/SLP.mod
+    0.410    0%   2.312 K    0%   0.259    0%   4.266 K    0%     1      3        INIT Coordinates at 37:1-38 SLP/SLP.mod
+    0.130    0%       0 B    0%   0.130    0%     520 B    0%     1      1          INIT Nodes at 32:15-27 SLP/SLP.mod
+    0.021    0%       0 B    0%   0.021    0%     616 B    0%     1      1          INIT Coords at 3:1-7:2 SLP/SLP.mod
+    0.011    0%       0 B    0%   0.011    0%       0 B    0%     1      1        INIT attacker_start_pos at 40:1-30 SLP/SLP.mod
+    0.010    0%       0 B    0%   0.010    0%       0 B    0%     1      1        INIT attacker_range at 41:1-28 SLP/SLP.mod
+    0.009    0%       0 B    0%   0.009    0%       0 B    0%     1      1        INIT num_fake_messages at 59:1-29 SLP/SLP.mod
+    0.010    0%       0 B    0%   0.010    0%       0 B    0%     1      1        INIT source_period at 47:1-27 SLP/SLP.mod
+    0.009    0%       0 B    0%   0.009    0%       0 B    0%     1      1        INIT safety_period at 48:1-27 SLP/SLP.mod
+    0.011    0%       0 B    0%   0.011    0%       0 B    0%     1      1        INIT slots_per_second at 50:1-28 SLP/SLP.mod
+    0.009    0%       0 B    0%   0.009    0%       0 B    0%     1      1        INIT obj at 21:1-15 SLP/SLP.mod
+    0.010    0%       0 B    0%   0.010    0%       0 B    0%     1      1        INIT message_sent_once at 23:1-29 SLP/SLP.mod
+    0.027    0%       0 B    0%   0.027    0%     320 B    0%     1      1      LOADING DATA override
+    5.237    0%  33.016 K    0%   0.048    0%  51.445 K    0%     1     12      PRE PROCESSING 
+    0.195    0%       0 B    0%   0.195    0%     920 B    0%     1      1        ASSERT  at 24:1-57 SLP/SLP.mod
+    0.189    0%       0 B    0%   0.189    0%   1.055 K    0%     1      1        ASSERT  at 34:1-53 SLP/SLP.mod
+    0.049    0%       0 B    0%   0.049    0%   1.016 K    0%     1      1        ASSERT  at 35:1-59 SLP/SLP.mod
+    0.017    0%       0 B    0%   0.017    0%     768 B    0%     1      1        ASSERT  at 43:1-36 SLP/SLP.mod
+    4.308    0%   2.969 K    0%   0.070    0%  22.891 K    0%     1      4        ASSERT  at 77:1-24 SLP/SLP.mod
+    4.238    0%   2.969 K    0%   0.447    0%  22.227 K    0%     1      3          INIT Edges at 73:44-110 SLP/SLP.mod
+    3.775    0%       0 B    0%   3.775    0%  11.406 K    0%     1      1            INIT Distance at 69:2-70:47 SLP/SLP.mod
+    0.016    0%     208 B    0%   0.016    0%     616 B    0%     1      1            INIT Edge at 9:1-13:2 SLP/SLP.mod
+    0.401    0%  30.047 K    0%   0.037    0%  23.422 K    0%     1      2        ASSERT  at 87:1-32 SLP/SLP.mod
+    0.364    0%  30.047 K    0%   0.364    0%  22.789 K    0%     1      1          INIT AttackerEdges at 82:31-83:78 SLP/SLP.mod
+    0.030    0%       0 B    0%   0.030    0%     832 B    0%     1      1        ASSERT  at 164:1-29 SLP/SLP.mod
+    0.743    0% 246.031 K    0%   0.032    0% 237.281 K    0%     1      5      INIT objective_value at 167:2-173:10 SLP/SLP.mod
+    0.711    0% 246.031 K    0%   0.072    0% 236.648 K    0%     1      4        INIT attacker_find_source_obj at 136:2-77 SLP/SLP.mod
+    0.639    0% 243.969 K    0%   0.575    0% 235.102 K    0%     1      3          INIT attacker_path at 95:1-50 SLP/SLP.mod
+    0.064    0%   3.609 K    0%   0.021    0%     936 B    0%     1      2            INIT Times at 54:15-26 SLP/SLP.mod
+    0.043    0%       0 B    0%   0.043    0%     392 B    0%     1      1              INIT max_time at 53:16-60 SLP/SLP.mod
+    0.331    0%  45.734 K    0%   0.071    0%  13.047 K    0%     1      5      INIT AllMessages at 64:32-65 SLP/SLP.mod
+    0.203    0%  44.938 K    0%   0.093    0%   6.531 K    0%     1      3        INIT SourceMessages at 62:35-101 SLP/SLP.mod
+    0.101    0%  44.938 K    0%   0.101    0%     680 B    0%     1      1          INIT num_normal_messages_per_source at 57:38-79 SLP/SLP.mod
+    0.009    0%       0 B    0%   0.009    0%     616 B    0%     1      1          INIT Message at 15:1-19:2 SLP/SLP.mod
+    0.057    0%       0 B    0%   0.057    0%   3.211 K    0%     1      1        INIT FakeMessages at 63:33-80 SLP/SLP.mod
+    1.650    0% 637.109 K    0%   1.650    0% 713.273 K    0%     1      1      INIT broadcasts at 92:1-52 SLP/SLP.mod
+    0.359    0%       0 B    0%   0.359    0%     352 B    0%     1      1      INIT source_period_quantised at 55:31-75 SLP/SLP.mod
+    0.320    0%       0 B    0%   0.320    0%  10.477 K    0%     1      1      INIT NeighboursTo at 75:34-66 SLP/SLP.mod
+    0.059    0%       0 B    0%   0.059    0%   5.789 K    0%     1      1      INIT node_generated_fake_message_at at 116:2-117:95 SLP/SLP.mod
+    0.370    0%  22.203 K    0%   0.073    0%  14.758 K    0%     1      2      INIT attacker_moved_to_neighbour_at at 104:2-86 SLP/SLP.mod
+    0.297    0%  14.422 K    0%   0.297    0%  11.492 K    0%     1      1        INIT AttackerNeighboursTo at 85:42-82 SLP/SLP.mod
+    0.066    0%   6.172 K    0%   0.066    0%   4.109 K    0%     1      1      INIT attacker_moved_because_at at 112:2-113:65 SLP/SLP.mod
+    0.076    0%   2.328 K    0%   0.076    0%     3.5 K    0%     1      1      INIT attacker_moved_to_at at 99:2-64 SLP/SLP.mod
+    0.030    0%       0 B    0%   0.030    0%   2.867 K    0%     1      1      INIT attacker_self_move at 108:2-66 SLP/SLP.mod
+ 1144640.792  100%    1.07 G  100%427771.862   37%   2.616 M    0%     1     49    EXECUTE main at 324:1-325:0 SLP/SLP.mod
+    0.206    0%  61.141 K    0%   0.206    0%  23.094 K    0%     1      1      EXTRACTING 4x4-0x2a0b3b8
+    0.257    0%  32.281 K    0%   0.257    0%     360 B    0%     1      1      OBJECTIVE 
+    1.029    0%       0 B    0%   1.018    0%   7.711 K    0%     1      2      EXTRACTING ctR01
+    0.011    0%       0 B    0%   0.011    0%       0 B    0%     1      1        INIT ctR01 at 183:2-185:31 SLP/SLP.mod
+    0.164    0%  11.391 K    0%   0.157    0%   2.148 K    0%     1      2      EXTRACTING ctR02
+    0.007    0%       0 B    0%   0.007    0%       0 B    0%     1      1        INIT ctR02 at 188:2-190:73 SLP/SLP.mod
+   18.843    0%   1.503 M    0%  18.836    0%  49.883 K    0%     1      2      EXTRACTING ctR03
+    0.007    0%       0 B    0%   0.007    0%       0 B    0%     1      1        INIT ctR03 at 193:2-195:56 SLP/SLP.mod
+  329.078    0%  10.331 M    1% 329.043    0% 620.781 K    0%     1      2      EXTRACTING ctR04
+    0.035    0%       0 B    0%   0.035    0%       0 B    0%     1      1        INIT ctR04 at 199:3-203:96 SLP/SLP.mod
+  707.178    0%   15.66 M    1% 706.983    0% 323.945 K    0%     1      2      EXTRACTING ctR05
+    0.195    0%       0 B    0%   0.195    0%       0 B    0%     1      1        INIT ctR05 at 207:2-211:103 SLP/SLP.mod
+    1.495    0%  11.312 K    0%   1.366    0%   1.031 K    0%     1      2      EXTRACTING ctR06
+    0.129    0%       0 B    0%   0.129    0%       0 B    0%     1      1        INIT ctR06 at 214:2-215:114 SLP/SLP.mod
+   32.310    0%       0 B    0%  32.310    0%       0 B    0%     1      1      INIT ctF01 at 219:3-225:65 SLP/SLP.mod
+   29.399    0%       0 B    0%  29.399    0%       0 B    0%     1      1      INIT ctF02 at 227:3-232:105 SLP/SLP.mod
+   42.628    0%       0 B    0%  30.479    0%   3.742 K    0%     1      2      EXTRACTING ctA01
+   12.149    0%       0 B    0%  12.149    0%       0 B    0%     1      1        INIT ctA01 at 237:2-65 SLP/SLP.mod
+   47.816    0%       0 B    0%  35.666    0%     392 B    0%     1      2      EXTRACTING ctA02
+   12.150    0%       0 B    0%  12.150    0%       0 B    0%     1      1        INIT ctA02 at 240:2-241:56 SLP/SLP.mod
+  117.243    0%       0 B    0% 104.527    0%   5.969 K    0%     1      2      EXTRACTING ctA03
+   12.716    0%       0 B    0%  12.716    0%       0 B    0%     1      1        INIT ctA03 at 244:2-246:70 SLP/SLP.mod
+   72.806    0%       0 B    0%  60.427    0%  49.906 K    0%     1      2      EXTRACTING ctA04
+   12.379    0%       0 B    0%  12.379    0%       0 B    0%     1      1        INIT ctA04 at 250:2-255:58 SLP/SLP.mod
+ 85442.767    7%       0 B    0%85392.610    7% 748.398 K    0%     1      2      EXTRACTING ctA05
+   50.157    0%       0 B    0%  50.157    0%       0 B    0%     1      1        INIT ctA05 at 259:2-270:40 SLP/SLP.mod
+ 5863.167    1%       0 B    0%5810.665    1%  31.648 K    0%     1      2      EXTRACTING ctA06
+   52.502    0%       0 B    0%  52.502    0%       0 B    0%     1      1        INIT ctA06 at 273:2-278:83 SLP/SLP.mod
+  522.724    0%       0 B    0% 474.588    0% 191.219 K    0%     1      2      EXTRACTING ctA07
+   48.136    0%       0 B    0%  48.136    0%       0 B    0%     1      1        INIT ctA07 at 281:2-284:35 SLP/SLP.mod
+  201.910    0%       0 B    0% 201.910    0%    37.4 M    3%     1      1      CP Optimizer Initial Propagation
+ 620187.417   54%    1.07 G  100%620187.417   54%  59.931 G 5592%     1      1      CP Optimizer Search
+ 1254.769    0%   2.804 M    0% 269.642    0% 456.391 K    0%     1     14      POST PROCESSING 
+  985.127    0%   2.804 M    0% 564.680    0% 455.516 K    0%     1     13        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+  158.045    0%   1.007 M    0% 158.045    0%  10.914 K    0%     1      1          INIT NeighboursFrom at 74:36-67 SLP/SLP.mod
+   31.003    0%     6.5 K    0%  31.003    0%   7.758 K    0%     1      1          INIT AttackerNeighboursFrom at 84:44-83 SLP/SLP.mod
+   18.701    0%       0 B    0%  18.701    0%     872 B    0%     1      1          INIT num_normal_messages at 58:27-75 SLP/SLP.mod
+   20.575    0%       0 B    0%  20.575    0%     152 B    0%     1      1          INIT num_total_messages at 60:26-65 SLP/SLP.mod
+   19.186    0%       0 B    0%  19.186    0%   1.828 K    0%     1      1          INIT attacker_source_distance_obj at 132:2-96 SLP/SLP.mod
+   20.768    0%       0 B    0%  20.768    0%   2.781 K    0%     1      1          INIT energy_usage_obj at 141:2-144:77 SLP/SLP.mod
+   27.944    0%       0 B    0%  27.944    0%   3.148 K    0%     1      1          INIT min_attacker_moves_obj at 148:2-149:60 SLP/SLP.mod
+   59.656    0%   1.651 M    0%  46.380    0% 251.117 K    0%     1      2          INIT message_latency_obj at 160:2-162:47 SLP/SLP.mod
+   13.276    0%       0 B    0%  13.276    0%   5.289 K    0%     1      1            INIT message_latency at 121:2-126:51 SLP/SLP.mod
+   16.366    0%       0 B    0%  16.366    0%     600 B    0%     1      1          INIT max_attacker_moves_obj at 153:2-155:25 SLP/SLP.mod
+   21.638    0%   45.25 K    0%  21.638    0%  76.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+   26.566    0%  70.766 K    0%  26.566    0%  60.766 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1807.608    0%       0 B    0%1807.608    0%-414.719 K   -0%     1      1      CP Optimizer Improve Solution
+  188.116    0%       0 B    0% 188.116    0%       0 B    0%     1      1      CP Optimizer Present Solution
+
+<<< profile, at 8240.530000s, took 0.181551s
+

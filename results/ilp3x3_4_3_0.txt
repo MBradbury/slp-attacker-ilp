@@ -1,0 +1,921 @@
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50637e+09s
+
+// solution 1 with objective 42
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 21
+min_attacker_moves_obj = 1
+message_latency_obj = 42
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1} {6} {11} {16} {20 21} {} {} {}]
+         [{} {} {} {} {} {} {} {}]
+         [{} {} {} {} {} {} {} {}]
+         [{7} {13} {23} {22} {21} {} {} {}]
+         [{8} {} {} {} {} {} {} {}]
+         [{9} {} {} {} {} {} {} {}]
+         [{} {14} {24} {23} {22} {} {} {}]
+         [{} {15} {25} {24} {23} {} {} {}]
+         [{} {} {} {} {} {} {} {}]]"""
+message_latency = """ [8 9 14 8 3]"""
+
+// solution 2 with objective 39
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 27
+min_attacker_moves_obj = 1
+message_latency_obj = 39
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1} {6} {2 11} {5 16} {20 21} {} {} {}]
+         [{} {} {} {} {} {} {} {}]
+         [{} {} {} {} {} {} {} {}]
+         [{7} {12 13} {3 23} {6 17} {21} {} {} {}]
+         [{8} {} {} {} {} {} {} {}]
+         [{10} {} {} {} {} {} {} {9}]
+         [{} {13} {10} {7} {22} {} {} {}]
+         [{} {14} {11} {15} {23} {} {} {}]
+         [{} {} {} {} {} {} {} {}]]"""
+message_latency = """ [9 8 9 10 3]"""
+
+// solution 3 with objective 36
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 30
+min_attacker_moves_obj = 1
+message_latency_obj = 36
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1} {6} {2 11} {5 16} {20 21} {} {} {}]
+         [{24} {} {} {} {} {} {} {}]
+         [{} {} {} {} {} {} {} {}]
+         [{7} {10 12 13} {8 23} {6 17} {21} {} {4} {}]
+         [{8} {} {} {} {} {} {} {}]
+         [{10} {} {} {} {} {9} {} {}]
+         [{} {11} {10} {7} {22} {} {} {}]
+         [{} {14} {13} {10} {23} {} {} {}]
+         [{} {} {} {} {} {} {} {}]]"""
+message_latency = """ [9 8 11 5 3]"""
+
+// solution 4 with objective 31
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 137
+min_attacker_moves_obj = 1
+message_latency_obj = 31
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1 7 8 22} {6 15 25} {2 11 12 23} {5 16} {20 21} {9 18} {14 17 19 24} {13}]
+         [{2 4 5 21 22 24} {7 11 16} {10 13} {8} {} {} {12 15 17 20} {3 9 23
+             25}]
+         [{3 4 5 6 8} {9} {} {} {} {14 17} {} {}]
+         [{2 7 20 24} {10} {8 12 15 19} {6 17 25} {21 23} {5 11} {4} {3 16}]
+         [{3 8} {} {} {9} {} {2 12 13 16 17 20 23 25} {6} {4}]
+         [{11 13 18} {10 21} {} {19} {} {9 16 24} {22} {12 15 23}]
+         [{} {11 16 17 20 24} {10 14 25} {7 9 18 21} {22 23} {2 6} {12 19}
+             {3 4 13}]
+         [{17} {14} {11 13 16 20 22} {10 15 19 25} {23} {18} {24} {12 21}]
+         [{} {} {} {} {} {2 11 15 19} {4} {}]]"""
+message_latency = """ [10 4 9 5 3]"""
+
+// solution 5 with objective 30
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 113
+min_attacker_moves_obj = 1
+message_latency_obj = 30
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1 7 8} {6 15} {3 11 12 23} {5 16} {20 21} {9 18} {14 17 19 24} {}]
+         [{2 4 5 21 22 24} {7 16} {13} {8} {} {} {12 20} {3 25}]
+         [{3 4 8} {9} {} {} {} {14} {} {}]
+         [{2 7 20 24} {10} {8 12 19} {6 17 25} {21 23} {5 11} {4} {3 16}]
+         [{3 8} {} {} {9} {} {2 12 13 16 17 20 23 25} {6} {4}]
+         [{11 13} {10 21} {} {19} {} {9 16 24} {22} {12 23}]
+         [{} {11 16 20 24} {10 25} {9 21} {22 23} {2 6} {19} {4}]
+         [{17} {14} {11 13 20 22} {10 15 19 25} {23} {18} {24} {12 21}]
+         [{} {} {} {} {} {11 15 19} {4} {}]]"""
+message_latency = """ [10 4 8 5 3]"""
+
+// solution 6 with objective 29
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 76
+min_attacker_moves_obj = 1
+message_latency_obj = 29
+max_attacker_moves_obj = -1
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>}]"""
+broadcasted_at = """ [[{1 7 8} {6 9} {4 11 23} {5 16} {20 21} {} {10} {}]
+         [{2 4 5 22 24} {7} {} {8} {} {} {12} {25}]
+         [{} {8} {} {} {} {} {} {}]
+         [{7 24} {10} {8 12 19} {17 25} {21 23} {5} {4} {3 16}]
+         [{3 8} {} {} {9} {} {2 12 13 16 17 20 23} {} {4}]
+         [{11 13} {10 21} {} {19} {} {9} {17} {23}]
+         [{} {11 16 20} {10 25} {21} {22} {} {19} {4}]
+         [{} {14} {11 22} {10 19} {23} {} {} {21}]
+         [{} {} {} {} {} {11 15 19} {4} {}]]"""
+message_latency = """ [10 4 7 5 3]"""
+
+// solution 7 with objective 28
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 94
+min_attacker_moves_obj = 5
+message_latency_obj = 28
+max_attacker_moves_obj = -5
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1 8} {6 25} {2 11 23} {5 16} {20 21} {} {14 17} {13}]
+         [{2 5 21 22} {7} {} {8} {} {} {12 17 20} {3}]
+         [{3 5 6 8} {9} {} {23} {} {14 17} {} {}]
+         [{7 20 24} {10} {5 12 19} {6 17} {21} {} {} {3}]
+         [{3 8} {} {} {7} {} {2 16 17 23 25} {6} {4}]
+         [{11 18} {21 25} {} {19} {} {9 16 24} {22} {15 23}]
+         [{} {11} {10 25} {7 9 18} {22 23} {} {12 19} {3 4 13}]
+         [{4} {14} {11 16 20} {10 15 25} {23} {} {5 24} {3 12 21}]
+         [{} {} {} {} {} {2 19} {4} {}]]"""
+message_latency = """ [3 8 9 5 3]"""
+
+// solution 8 with objective 27
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 119
+min_attacker_moves_obj = 5
+message_latency_obj = 27
+max_attacker_moves_obj = -5
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1 8} {6 25} {3 11 23} {5 16} {20 21} {} {14 17} {7 13}]
+         [{2 5 21 22} {7 8 10} {14} {15 16 24} {} {} {12 20} {3}]
+         [{3 5 6 8} {9} {} {23} {} {14 17} {} {11}]
+         [{7 17 20 24} {10 15} {5 11 19} {6 9} {21} {25} {} {3 22}]
+         [{3 8} {} {} {7} {} {2 16 17 23} {6 22} {}]
+         [{11 18} {21 25} {} {} {} {9 13 16 20 24} {5 22} {15 23}]
+         [{} {11 21} {6 10 25} {7 9 14 18 20} {22 23} {} {12 19 24} {3 4 13}]
+         [{4 13} {14} {11 16 20} {10 15 25} {23} {18} {5 7 24} {3 12 21}]
+         [{9} {} {} {} {} {2 18 19} {4 17} {6 13 15}]]"""
+message_latency = """ [3 8 8 5 3]"""
+
+// solution 9 with objective 26
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 72
+min_attacker_moves_obj = 7
+message_latency_obj = 26
+max_attacker_moves_obj = -7
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 3>} {<3 2>} {<2 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1} {6} {3 11} {5 16} {13 20 21} {} {17} {}]
+         [{2 23} {8 10} {17} {13} {} {} {11} {}]
+         [{5} {} {22} {23 24} {} {14} {} {}]
+         [{7 20 24} {10} {5 11} {6 9} {14} {} {} {3}]
+         [{3 8} {9} {} {} {} {2 17 23} {6} {}]
+         [{} {12 25} {} {} {} {4 9 20 24} {5} {23}]
+         [{} {11} {6} {7 14 18} {16 22 23} {} {12 19} {}]
+         [{4 13} {} {11 16} {10} {17} {} {5 24} {3 21}]
+         [{} {} {} {} {} {10 19} {4 17} {13}]]"""
+message_latency = """ [3 6 8 5 4]"""
+
+// solution 10 with objective 25
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 65
+min_attacker_moves_obj = 7
+message_latency_obj = 25
+max_attacker_moves_obj = -7
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 3>} {<3 2>} {<2 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1} {6} {3 11} {5 16} {13 20 21} {} {17} {}]
+         [{2 23} {8 10} {17} {13} {} {} {11} {}]
+         [{} {} {22} {23 24} {} {18} {} {}]
+         [{7 20 24} {10} {5 11} {6 9} {14} {} {} {3}]
+         [{3 8} {9} {} {} {} {2 17 23} {6} {}]
+         [{} {11 25} {} {} {} {4 9 24} {5} {23}]
+         [{} {11} {6} {7 14 18} {16 23} {} {12} {}]
+         [{4 13} {} {11 16} {10} {17} {} {5 24} {3}]
+         [{} {} {} {} {} {10} {4} {13}]]"""
+message_latency = """ [3 5 8 5 4]"""
+
+// solution 11 with objective 23
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 93
+min_attacker_moves_obj = 5
+message_latency_obj = 23
+max_attacker_moves_obj = -5
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1 8} {6 25} {3 11} {5 16} {20 21} {} {17} {}]
+         [{2 21 22} {7 8 10} {14} {15 16} {} {} {4 20} {3}]
+         [{3 6 8} {9} {} {23} {} {14} {} {11}]
+         [{17 20 24} {10 15} {5} {6 9} {21} {25} {} {22}]
+         [{3 8} {} {} {} {} {2 16 23} {6 22} {}]
+         [{11} {10 21 25} {} {} {} {9 13 16 24} {} {15 23}]
+         [{} {11 21} {10 25} {7 9 14 18 20} {22} {} {12 19 24} {3 13}]
+         [{4 13 20} {14} {11} {10 15} {23} {} {5 7 24} {3 12 21}]
+         [{9} {} {} {} {} {2 19} {4} {6 15}]]"""
+message_latency = """ [3 4 8 5 3]"""
+
+// solution 12 with objective 22
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 84
+min_attacker_moves_obj = 5
+message_latency_obj = 22
+max_attacker_moves_obj = -5
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1 8} {6 25} {4 11} {5 16} {20 21} {} {17} {}]
+         [{2 21} {7 8 10} {14} {15} {} {} {11 20} {3}]
+         [{3 6 8} {9} {} {23} {} {14} {} {11}]
+         [{20 24} {10 15} {5} {6 9} {21} {25} {} {22}]
+         [{3 8} {} {9} {} {} {2 16 23} {6 22} {}]
+         [{11} {10 21 25} {} {} {} {9 13 16} {} {15 23}]
+         [{} {11 21} {25} {7 14 20} {22} {} {12 24} {3 13}]
+         [{4 13 20} {14} {11} {10 15} {23} {} {5 7 24} {3 12}]
+         [{9} {} {} {} {} {2} {4} {6 15}]]"""
+message_latency = """ [3 4 7 5 3]"""
+
+// solution 13 with objective 20
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2.236067977
+attacker_find_source_obj = 0
+energy_usage_obj = 65
+min_attacker_moves_obj = 5
+message_latency_obj = 20
+max_attacker_moves_obj = -5
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 6>}]"""
+broadcasted_at = """ [[{1 8} {6 25} {4 11} {7 9 16} {20 21} {} {17} {}]
+         [{2 21} {7} {14} {15} {} {} {4 20} {3}]
+         [{3 23} {9} {} {} {} {14} {} {11}]
+         [{20} {10 15} {5} {8} {21} {25} {} {}]
+         [{3} {} {9} {} {} {2 16} {22} {}]
+         [{11} {10 21 25} {} {} {} {9} {} {15 23}]
+         [{} {11} {25} {9 14 20} {22} {} {12} {}]
+         [{4 20} {14} {11} {10 15} {23} {} {5 24} {3 12}]
+         [{} {} {} {} {} {2} {4} {6}]]"""
+message_latency = """ [3 4 7 3 3]"""
+
+// solution 14 with objective 19
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 57
+min_attacker_moves_obj = 6
+message_latency_obj = 19
+max_attacker_moves_obj = -6
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 3>} {<3 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 3>}]"""
+broadcasted_at = """ [[{1 8} {6} {5 11} {7 9 16} {20 21} {} {17} {}]
+         [{2} {7} {8 14} {15} {} {} {4 20} {3}]
+         [{23} {9} {18} {} {} {} {} {}]
+         [{} {10 15} {} {8} {21} {25} {} {}]
+         [{3} {} {9} {} {} {16} {} {4}]
+         [{} {10 19 21 25} {} {} {} {9} {} {15}]
+         [{} {11} {25} {9 14 20} {22} {} {12} {}]
+         [{4 20} {14} {11} {10 15} {23} {} {5 24} {3 12}]
+         [{} {} {} {} {} {2} {4} {}]]"""
+message_latency = """ [3 4 6 3 3]"""
+
+// solution 15 with objective 18
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 44
+min_attacker_moves_obj = 6
+message_latency_obj = 18
+max_attacker_moves_obj = -6
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 3>} {<3 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 3>}]"""
+broadcasted_at = """ [[{1} {6} {4 11} {7 9 16} {20 21} {} {17} {}]
+         [{2} {7} {8} {15} {} {} {4} {}]
+         [{23} {9} {18} {} {} {} {} {}]
+         [{} {15} {} {8} {21} {} {} {}]
+         [{3} {8} {9} {} {} {} {} {}]
+         [{4} {9 25} {10} {} {} {19} {} {}]
+         [{} {} {25} {9 14 20} {22} {} {} {}]
+         [{20} {14} {11} {10 15} {23} {} {5 24} {3}]
+         [{} {} {} {} {} {} {4} {}]]"""
+message_latency = """ [3 3 6 3 3]"""
+
+// solution 16 with objective 17
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 43
+min_attacker_moves_obj = 6
+message_latency_obj = 17
+max_attacker_moves_obj = -6
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 3>} {<3 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 3>}]"""
+broadcasted_at = """ [[{1} {6} {5 11} {7 16} {20 21} {} {17} {}]
+         [{2} {7} {8} {15} {} {} {16} {}]
+         [{23} {9} {18} {} {} {} {} {}]
+         [{2} {15} {} {8} {21} {} {} {}]
+         [{3} {8} {9} {} {} {} {12} {}]
+         [{4} {9} {10} {} {} {19} {} {}]
+         [{} {} {25} {9 14 20} {22} {} {} {}]
+         [{20} {14} {21} {10 15} {23} {} {5} {3}]
+         [{} {} {} {} {} {} {4} {}]]"""
+message_latency = """ [3 3 5 3 3]"""
+
+// solution 17 with objective 16
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 40
+min_attacker_moves_obj = 6
+message_latency_obj = 16
+max_attacker_moves_obj = -6
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 3>} {<3 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 3>}]"""
+broadcasted_at = """ [[{1} {6} {8 11} {7 16} {20 21} {} {17} {}]
+         [{2} {7} {15} {} {} {} {11} {}]
+         [{23} {} {18} {} {} {} {9} {}]
+         [{} {15} {9} {8} {21} {} {} {}]
+         [{3} {8} {} {} {} {} {12} {}]
+         [{4} {9} {} {} {} {19} {8} {}]
+         [{} {} {10} {9} {22} {} {} {}]
+         [{20} {14} {11 21} {10 15} {24} {} {5} {3}]
+         [{} {} {} {} {} {} {4} {}]]"""
+message_latency = """ [3 3 3 3 4]"""
+
+// solution 18 with objective 15
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 3
+messages = 8
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 4
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 42
+min_attacker_moves_obj = 6
+message_latency_obj = 15
+max_attacker_moves_obj = -6
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 8>} {<8 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 6>} {<6 6>} {<6 3>} {<3 6>} {<6 6>} {<6 6>} {
+        <6 6>} {<6 3>} {<3 3>} {<3 3>}]"""
+broadcasted_at = """ [[{1} {6} {8 11} {7 16} {20 21} {} {17} {}]
+         [{2} {7} {15} {13} {} {} {11} {}]
+         [{23} {} {} {18} {} {} {9} {}]
+         [{} {15} {9} {8} {21} {} {} {}]
+         [{3} {8} {} {} {} {} {12} {}]
+         [{4} {9} {} {} {} {19} {8} {}]
+         [{} {} {10} {9} {22} {} {} {}]
+         [{20} {14} {11 21} {10 15} {23 24} {} {5} {3}]
+         [{} {} {} {} {} {} {4} {}]]"""
+message_latency = """ [3 3 3 3 3]"""
+
+main returns 0
+
+<<< main, at 24391.5s, took 1449.83s
+
+
+<<< done, at 24391.5s, took 1.5974e-05s
+
+Profiler Report
+     Time      PeakMemory      SelfTime        LocalMem       Count  Nodes Description
+ 1449818.274  100% 566.252 M  100%   2.361    0%    1.47 M    0%     1    183  TOTAL 
+    0.001    0%       0 B    0%   0.001    0%     256 B    0%     1      1    READING MODEL DEFINITION SLP
+    8.053    0% 711.266 K    0%   2.693    0% 469.891 K    0%     1     51    LOADING MODEL 3x3-0x35853b8
+    0.601    0%  50.078 K    0%   0.191    0%  37.523 K    0%     1     16      LOADING DATA SLP/SLP3x3.dat
+    0.041    0%  31.469 K    0%   0.041    0%       0 B    0%     1      1        INIT num_nodes at 27:1-21 SLP/SLP.mod
+    0.012    0%       0 B    0%   0.012    0%       0 B    0%     1      1        INIT comms_range at 28:1-25 SLP/SLP.mod
+    0.059    0%       0 B    0%   0.059    0%     240 B    0%     1      1        INIT SourceIDs at 29:1-23 SLP/SLP.mod
+    0.006    0%       0 B    0%   0.006    0%     232 B    0%     1      1        INIT SinkIDs at 30:1-21 SLP/SLP.mod
+    0.251    0%   2.312 K    0%   0.153    0%   4.172 K    0%     1      3        INIT Coordinates at 37:1-38 SLP/SLP.mod
+    0.083    0%       0 B    0%   0.083    0%     520 B    0%     1      1          INIT Nodes at 32:15-27 SLP/SLP.mod
+    0.015    0%       0 B    0%   0.015    0%     616 B    0%     1      1          INIT Coords at 3:1-7:2 SLP/SLP.mod
+    0.006    0%       0 B    0%   0.006    0%       0 B    0%     1      1        INIT attacker_start_pos at 40:1-30 SLP/SLP.mod
+    0.006    0%       0 B    0%   0.006    0%       0 B    0%     1      1        INIT attacker_range at 41:1-28 SLP/SLP.mod
+    0.005    0%       0 B    0%   0.005    0%       0 B    0%     1      1        INIT num_fake_messages at 59:1-29 SLP/SLP.mod
+    0.007    0%       0 B    0%   0.007    0%       0 B    0%     1      1        INIT source_period at 47:1-27 SLP/SLP.mod
+    0.003    0%       0 B    0%   0.003    0%       0 B    0%     1      1        INIT safety_period at 48:1-27 SLP/SLP.mod
+    0.004    0%       0 B    0%   0.004    0%       0 B    0%     1      1        INIT slots_per_second at 50:1-28 SLP/SLP.mod
+    0.005    0%       0 B    0%   0.005    0%       0 B    0%     1      1        INIT obj at 21:1-15 SLP/SLP.mod
+    0.005    0%       0 B    0%   0.005    0%       0 B    0%     1      1        INIT message_sent_once at 23:1-29 SLP/SLP.mod
+    0.018    0%       0 B    0%   0.018    0%     320 B    0%     1      1      LOADING DATA override
+    2.322    0%   21.25 K    0%   0.038    0%  39.133 K    0%     1     12      PRE PROCESSING 
+    0.131    0%       0 B    0%   0.131    0%     944 B    0%     1      1        ASSERT  at 24:1-57 SLP/SLP.mod
+    0.134    0%       0 B    0%   0.134    0%   1.055 K    0%     1      1        ASSERT  at 34:1-53 SLP/SLP.mod
+    0.032    0%       0 B    0%   0.032    0%   1.016 K    0%     1      1        ASSERT  at 35:1-59 SLP/SLP.mod
+    0.011    0%       0 B    0%   0.011    0%     768 B    0%     1      1        ASSERT  at 43:1-36 SLP/SLP.mod
+    1.653    0%       0 B    0%   0.056    0%  17.734 K    0%     1      4        ASSERT  at 77:1-24 SLP/SLP.mod
+    1.597    0%       0 B    0%   0.343    0%   17.07 K    0%     1      3          INIT Edges at 73:44-110 SLP/SLP.mod
+    1.244    0%       0 B    0%   1.244    0%   8.688 K    0%     1      1            INIT Distance at 69:2-70:47 SLP/SLP.mod
+    0.010    0%       0 B    0%   0.010    0%     616 B    0%     1      1            INIT Edge at 9:1-13:2 SLP/SLP.mod
+    0.288    0%  17.328 K    0%   0.040    0%  16.242 K    0%     1      2        ASSERT  at 87:1-32 SLP/SLP.mod
+    0.248    0%  13.406 K    0%   0.248    0%  15.609 K    0%     1      1          INIT AttackerEdges at 82:31-83:78 SLP/SLP.mod
+    0.035    0%   3.922 K    0%   0.035    0%     832 B    0%     1      1        ASSERT  at 164:1-29 SLP/SLP.mod
+    1.840    0% 394.219 K    0%   0.042    0% 267.531 K    0%     1     14      INIT objective_value at 167:2-173:10 SLP/SLP.mod
+    1.798    0% 394.219 K    0%   0.404    0% 266.289 K    0%     1     13        INIT message_latency_obj at 160:2-162:47 SLP/SLP.mod
+    0.294    0%  67.422 K    0%   0.059    0%  68.258 K    0%     1      4          INIT attacker_find_source_obj at 136:2-77 SLP/SLP.mod
+    0.235    0%   63.75 K    0%   0.177    0%  66.711 K    0%     1      3            INIT attacker_path at 95:1-50 SLP/SLP.mod
+    0.058    0%       0 B    0%   0.016    0%     936 B    0%     1      2              INIT Times at 54:15-26 SLP/SLP.mod
+    0.042    0%       0 B    0%   0.042    0%     392 B    0%     1      1                INIT max_time at 53:16-60 SLP/SLP.mod
+    0.119    0%       0 B    0%   0.090    0%   5.477 K    0%     1      3          INIT SourceMessages at 62:35-101 SLP/SLP.mod
+    0.020    0%       0 B    0%   0.020    0%     424 B    0%     1      1            INIT num_normal_messages_per_source at 57:38-79 SLP/SLP.mod
+    0.009    0%       0 B    0%   0.009    0%     616 B    0%     1      1            INIT Message at 15:1-19:2 SLP/SLP.mod
+    0.981    0% 215.234 K    0%   0.103    0% 176.117 K    0%     1      5          INIT message_latency at 121:2-126:51 SLP/SLP.mod
+    0.315    0%  46.359 K    0%   0.315    0%   7.031 K    0%     1      1            INIT NeighboursTo at 75:34-66 SLP/SLP.mod
+    0.563    0% 168.875 K    0%   0.410    0% 163.656 K    0%     1      3            INIT broadcasts at 92:1-52 SLP/SLP.mod
+    0.153    0%     9.5 K    0%   0.065    0%   6.188 K    0%     1      2              INIT AllMessages at 64:32-65 SLP/SLP.mod
+    0.088    0%   6.641 K    0%   0.088    0%    3.25 K    0%     1      1                INIT FakeMessages at 63:33-80 SLP/SLP.mod
+    0.027    0%       0 B    0%   0.027    0%     632 B    0%     1      1      INIT source_period_quantised at 55:31-75 SLP/SLP.mod
+    0.053    0%   2.203 K    0%   0.053    0%   5.789 K    0%     1      1      INIT node_generated_fake_message_at at 116:2-117:95 SLP/SLP.mod
+    0.328    0%  16.719 K    0%   0.080    0%  11.195 K    0%     1      2      INIT attacker_moved_to_neighbour_at at 104:2-86 SLP/SLP.mod
+    0.248    0%    10.5 K    0%   0.248    0%    7.93 K    0%     1      1        INIT AttackerNeighboursTo at 85:42-82 SLP/SLP.mod
+    0.060    0%       0 B    0%   0.060    0%   4.234 K    0%     1      1      INIT attacker_moved_because_at at 112:2-113:65 SLP/SLP.mod
+    0.069    0%   2.391 K    0%   0.069    0%   3.375 K    0%     1      1      INIT attacker_moved_to_at at 99:2-64 SLP/SLP.mod
+    0.042    0%   2.297 K    0%   0.042    0%   2.867 K    0%     1      1      INIT attacker_self_move at 108:2-66 SLP/SLP.mod
+ 1449807.859  100% 565.457 M  100%20916.149    1%   986.5 K    0%     1    130    EXECUTE main at 324:1-325:0 SLP/SLP.mod
+    0.229    0%  57.219 K    0%   0.229    0%  23.094 K    0%     1      1      EXTRACTING 3x3-0x35853b8
+    2.725    0% 334.531 K    0%   2.725    0%   1.789 K    0%     1      1      OBJECTIVE 
+    0.452    0%  20.922 K    0%   0.440    0%   1.547 K    0%     1      2      EXTRACTING ctR01
+    0.012    0%       0 B    0%   0.012    0%       0 B    0%     1      1        INIT ctR01 at 183:2-185:31 SLP/SLP.mod
+    0.138    0%   9.656 K    0%   0.128    0%   2.039 K    0%     1      2      EXTRACTING ctR02
+    0.010    0%       0 B    0%   0.010    0%       0 B    0%     1      1        INIT ctR02 at 188:2-190:73 SLP/SLP.mod
+    4.923    0% 470.031 K    0%   4.917    0%  46.812 K    0%     1      2      EXTRACTING ctR03
+    0.006    0%       0 B    0%   0.006    0%       0 B    0%     1      1        INIT ctR03 at 193:2-195:56 SLP/SLP.mod
+   73.365    0%   2.062 M    0%  73.349    0%  63.516 K    0%     1      2      EXTRACTING ctR05
+    0.016    0%       0 B    0%   0.016    0%       0 B    0%     1      1        INIT ctR05 at 207:2-211:103 SLP/SLP.mod
+    0.475    0%       0 B    0%   0.465    0%     944 B    0%     1      2      EXTRACTING ctR06
+    0.010    0%       0 B    0%   0.010    0%       0 B    0%     1      1        INIT ctR06 at 214:2-215:114 SLP/SLP.mod
+    0.304    0%       0 B    0%   0.304    0%       0 B    0%     1      1      INIT ctF01 at 219:3-225:65 SLP/SLP.mod
+    0.087    0%       0 B    0%   0.087    0%       0 B    0%     1      1      INIT ctF02 at 227:3-232:105 SLP/SLP.mod
+    0.249    0%       0 B    0%   0.189    0%   3.742 K    0%     1      2      EXTRACTING ctA01
+    0.060    0%       0 B    0%   0.060    0%       0 B    0%     1      1        INIT ctA01 at 237:2-65 SLP/SLP.mod
+    1.513    0% 119.094 K    0%   1.445    0%  -1.117 K   -0%     1      2      EXTRACTING ctA02
+    0.069    0%       0 B    0%   0.069    0%       0 B    0%     1      1        INIT ctA02 at 240:2-241:56 SLP/SLP.mod
+   17.295    0%   1.107 M    0%  17.221    0%   3.398 K    0%     1      2      EXTRACTING ctA03
+    0.074    0%       0 B    0%   0.074    0%       0 B    0%     1      1        INIT ctA03 at 244:2-246:70 SLP/SLP.mod
+    7.191    0% 257.328 K    0%   7.116    0%  14.836 K    0%     1      2      EXTRACTING ctA04
+    0.075    0%       0 B    0%   0.075    0%       0 B    0%     1      1        INIT ctA04 at 250:2-255:58 SLP/SLP.mod
+ 4937.242    0% 204.365 M   36%4936.872    0% 178.086 K    0%     1      2      EXTRACTING ctA05
+    0.370    0%       0 B    0%   0.370    0%       0 B    0%     1      1        INIT ctA05 at 259:2-270:40 SLP/SLP.mod
+  603.030    0%  24.262 M    4% 602.641    0%  13.289 K    0%     1      2      EXTRACTING ctA06
+    0.389    0%       0 B    0%   0.389    0%       0 B    0%     1      1        INIT ctA06 at 273:2-278:83 SLP/SLP.mod
+   70.928    0%   1.829 M    0%  70.840    0%  49.461 K    0%     1      2      EXTRACTING ctA07
+    0.088    0%       0 B    0%   0.088    0%       0 B    0%     1      1        INIT ctA07 at 281:2-284:35 SLP/SLP.mod
+   32.081    0%    7.34 M    1%  32.081    0%   7.333 M    1%     1      1      CP Optimizer Initial Propagation
+ 12717.941    1%       0 B    0%12717.941    1%   4.407 G  797%     1      1      CP Optimizer Search
+   63.478    0%       0 B    0%   5.776    0% 119.555 K    0%     1     12      POST PROCESSING 
+   57.702    0%       0 B    0%  40.026    0%  118.68 K    0%     1     11        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    1.498    0%       0 B    0%   1.498    0%   7.242 K    0%     1      1          INIT NeighboursFrom at 74:36-67 SLP/SLP.mod
+    0.955    0%       0 B    0%   0.955    0%   5.391 K    0%     1      1          INIT AttackerNeighboursFrom at 84:44-83 SLP/SLP.mod
+    0.686    0%       0 B    0%   0.686    0%     872 B    0%     1      1          INIT num_normal_messages at 58:27-75 SLP/SLP.mod
+    0.645    0%       0 B    0%   0.645    0%     152 B    0%     1      1          INIT num_total_messages at 60:26-65 SLP/SLP.mod
+    0.744    0%       0 B    0%   0.744    0%   1.828 K    0%     1      1          INIT attacker_source_distance_obj at 132:2-96 SLP/SLP.mod
+    0.702    0%       0 B    0%   0.702    0%   2.656 K    0%     1      1          INIT energy_usage_obj at 141:2-144:77 SLP/SLP.mod
+    1.389    0%       0 B    0%   1.389    0%   3.148 K    0%     1      1          INIT min_attacker_moves_obj at 148:2-149:60 SLP/SLP.mod
+    1.673    0%       0 B    0%   1.673    0%     600 B    0%     1      1          INIT max_attacker_moves_obj at 153:2-155:25 SLP/SLP.mod
+    3.865    0%       0 B    0%   3.865    0%  40.734 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.519    0%       0 B    0%   5.519    0%   29.32 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 9930.413    1%       0 B    0%9930.413    1%  25.574 M    5%     1      1      CP Optimizer Improve Solution
+   44.343    0%       0 B    0%   2.272    0%  97.156 K    0%     1      4      POST PROCESSING 
+   42.070    0%       0 B    0%  31.955    0%  96.586 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    4.250    0%       0 B    0%   4.250    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.866    0%       0 B    0%   5.866    0%  29.023 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1090.881    0%       0 B    0%1090.881    0%   5.495 M    1%     1      1      CP Optimizer Improve Solution
+   50.351    0%       0 B    0%   2.134    0%  96.852 K    0%     1      4      POST PROCESSING 
+   48.217    0%       0 B    0%  37.788    0%  96.352 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    4.287    0%       0 B    0%   4.287    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    6.142    0%       0 B    0%   6.142    0%  28.789 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1195.872    0%       0 B    0%1195.872    0%   2.013 M    0%     1      1      CP Optimizer Improve Solution
+   45.645    0%       0 B    0%   1.872    0%  97.977 K    0%     1      4      POST PROCESSING 
+   43.773    0%       0 B    0%  34.362    0%  97.477 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    3.948    0%       0 B    0%   3.948    0%  40.203 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.463    0%       0 B    0%   5.463    0%  29.852 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1784.050    0%       0 B    0%1784.050    0%   3.684 M    1%     1      1      CP Optimizer Improve Solution
+   50.700    0%       0 B    0%   2.249    0%  97.852 K    0%     1      4      POST PROCESSING 
+   48.451    0%       0 B    0%  38.552    0%  97.352 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    4.166    0%       0 B    0%   4.166    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.733    0%       0 B    0%   5.733    0%  29.727 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1467.283    0%       0 B    0%1467.283    0%   3.272 M    1%     1      1      CP Optimizer Improve Solution
+   39.022    0%       0 B    0%   1.890    0%   97.32 K    0%     1      4      POST PROCESSING 
+   37.132    0%       0 B    0%  27.851    0%   96.82 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    3.836    0%       0 B    0%   3.836    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.445    0%       0 B    0%   5.445    0%   29.32 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 2416.905    0%       0 B    0%2416.905    0%   5.264 M    1%     1      1      CP Optimizer Improve Solution
+   33.661    0%       0 B    0%   2.002    0%  97.445 K    0%     1      4      POST PROCESSING 
+   31.658    0%       0 B    0%  24.893    0%  96.945 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.817    0%       0 B    0%   2.817    0%  40.203 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    3.948    0%       0 B    0%   3.948    0%  29.383 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+  734.084    0%       0 B    0% 734.084    0%   2.449 M    0%     1      1      CP Optimizer Improve Solution
+   33.889    0%       0 B    0%   1.758    0%  99.945 K    0%     1      4      POST PROCESSING 
+   32.131    0%       0 B    0%  25.387    0%  99.445 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.724    0%       0 B    0%   2.724    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.019    0%       0 B    0%   4.019    0%   29.82 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1586.300    0%       0 B    0%1586.300    0%   3.783 M    1%     1      1      CP Optimizer Improve Solution
+   36.154    0%       0 B    0%   2.093    0%  97.367 K    0%     1      4      POST PROCESSING 
+   34.061    0%       0 B    0%  27.219    0%  96.867 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.756    0%       0 B    0%   2.756    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.086    0%       0 B    0%   4.086    0%   29.18 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+  508.359    0%       0 B    0% 508.359    0% 607.414 K    0%     1      1      CP Optimizer Improve Solution
+   33.289    0%       0 B    0%   1.762    0%  97.102 K    0%     1      4      POST PROCESSING 
+   31.526    0%       0 B    0%  24.783    0%  96.602 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.680    0%       0 B    0%   2.680    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.063    0%       0 B    0%   4.063    0%  29.164 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+  777.141    0%       0 B    0% 777.141    0%   1.339 M    0%     1      1      CP Optimizer Improve Solution
+   33.686    0%       0 B    0%   1.810    0%  97.445 K    0%     1      4      POST PROCESSING 
+   31.876    0%       0 B    0%  25.273    0%  96.945 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.685    0%       0 B    0%   2.685    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    3.917    0%       0 B    0%   3.917    0%  29.383 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1932.829    0%       0 B    0%1932.829    0%   2.396 M    0%     1      1      CP Optimizer Improve Solution
+   33.771    0%       0 B    0%   1.791    0%  97.352 K    0%     1      4      POST PROCESSING 
+   31.980    0%       0 B    0%  25.352    0%  96.852 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.683    0%       0 B    0%   2.683    0%  40.328 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    3.946    0%       0 B    0%   3.946    0%  29.227 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 3373.083    0%       0 B    0%3373.083    0%     9.4 M    2%     1      1      CP Optimizer Improve Solution
+   40.896    0%       0 B    0%   2.148    0%  97.742 K    0%     1      4      POST PROCESSING 
+   38.748    0%       0 B    0%  31.586    0%  97.242 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.830    0%       0 B    0%   2.830    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.332    0%       0 B    0%   4.332    0%  29.055 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 3903.689    0%       0 B    0%3903.689    0%  10.618 M    2%     1      1      CP Optimizer Improve Solution
+   39.115    0%       0 B    0%   1.864    0%  96.867 K    0%     1      4      POST PROCESSING 
+   37.251    0%       0 B    0%  30.294    0%  96.367 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.691    0%       0 B    0%   2.691    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.266    0%       0 B    0%   4.266    0%  29.055 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 3995.070    0%       0 B    0%3995.070    0%  11.876 M    2%     1      1      CP Optimizer Improve Solution
+   39.795    0%       0 B    0%   2.220    0%  97.195 K    0%     1      4      POST PROCESSING 
+   37.574    0%       0 B    0%  30.205    0%  96.695 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.906    0%       0 B    0%   2.906    0%  40.328 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    4.463    0%       0 B    0%   4.463    0%   28.82 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 2912.971    0%       0 B    0%2912.971    0%   9.859 M    2%     1      1      CP Optimizer Improve Solution
+   71.261    0%       0 B    0%   2.036    0%  96.586 K    0%     1      4      POST PROCESSING 
+   69.226    0%       0 B    0%  51.719    0%  96.086 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    2.853    0%       0 B    0%   2.853    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+   14.654    0%       0 B    0%  14.654    0%  28.773 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 40149.100    3%       0 B    0%40149.100    3%  87.183 M   15%     1      1      CP Optimizer Improve Solution
+   59.958    0%       0 B    0%  12.594    0%  97.133 K    0%     1      4      POST PROCESSING 
+   47.364    0%       0 B    0%  37.270    0%  96.633 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    4.146    0%       0 B    0%   4.146    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.948    0%       0 B    0%   5.948    0%  28.945 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1317.626    0%       0 B    0%1317.626    0%   1.685 M    0%     1      1      CP Optimizer Improve Solution
+   41.613    0%       0 B    0%   2.115    0%  97.211 K    0%     1      4      POST PROCESSING 
+   39.498    0%       0 B    0%  29.960    0%  96.711 K    0%     1      3        EXECUTE anonymous#1 at 291:1-292:0 SLP/SLP.mod
+    3.999    0%       0 B    0%   3.999    0%  40.141 K    0%     1      1          INIT Used at 287:27-78 SLP/SLP.mod
+    5.539    0%       0 B    0%   5.539    0%  29.023 K    0%     1      1          INIT BroadcastsAt at 289:52-95 SLP/SLP.mod
+ 1330518.840   92%   1.525 M    0%1330518.840   92%  96.112 M   17%     1      1      CP Optimizer Improve Solution
+   36.420    0%       0 B    0%  36.420    0%       0 B    0%     1      1      CP Optimizer Present Solution
+
+<<< profile, at 24391.470000s, took 0.006241s
+

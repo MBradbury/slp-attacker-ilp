@@ -1,7 +1,0 @@
-Default LOCALE: C
-
-<<< setup, at 0s, took 1.50586e+09s
-
-
-<<< generate, at 0.02s, took 0.0265951s
-
