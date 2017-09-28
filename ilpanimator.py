@@ -104,7 +104,7 @@ class ILPAnimator(object):
         ]
         lgd = ax.legend(handles=legend_patches, loc=(-0.075, 0.5))
 
-def draw_one_result(result, args):
+def draw_one_result(result, i, args):
     anim = ILPAnimator(result)
 
     ani = animation.FuncAnimation(anim.fig, anim.animate, frames=anim.results.time_steps,
@@ -119,15 +119,15 @@ def draw_one_result(result, args):
         # the video can be embedded in html5.  You may need to adjust this for
         # your system: for more information, see
         # http://matplotlib.sourceforge.net/api/animation_api.html
-        path = 'out/{}_anim.mp4'.format(result.name.replace(".", "_"))
+        path = 'out/{}_{}_anim.mp4'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
 
     elif args.format == "gif":
-        path = 'out/{}_anim.gif'.format(result.name.replace(".", "_"))
+        path = 'out/{}_{}_anim.gif'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer='imagemagick')
 
     elif args.format == "frames":
-        path = 'out/{}_frames/'.format(result.name.replace(".", "_"))
+        path = 'out/{}_{}_frames/'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer=FrameWriter())
 
         # Can't show these individual frames
@@ -152,6 +152,7 @@ def main():
     parser.add_argument("results", metavar="R", nargs="+")
     parser.add_argument("--format", required=True, choices=["gif", "mp4", "frames", "none"])
     parser.add_argument("--no-show", action='store_true', default=False)
+    parser.add_argument("--intermediate", action='store_true', default=False)
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -161,10 +162,20 @@ def main():
     for result_name in args.results:
         print("Animating {}".format(result_name))
 
-        results_data = Results.parse_file(result_name)
+        try:
+            results_data = Results.parse_file(result_name)
+        except IncompleteResultFileError as ex:
+            print(ex)
+            continue
 
-        for result_data in results_data:
-            draw_one_result(result_data, args)
+        to_iterate = list(enumerate(results_data))
+        to_iterate[-1] = ("final", to_iterate[-1][1])
+
+        if not args.intermediate:
+            to_iterate = [to_iterate[-1]]
+
+        for (i, result_data) in to_iterate:
+            draw_one_result(result_data, i, args)
 
 if __name__ == "__main__":
     main()

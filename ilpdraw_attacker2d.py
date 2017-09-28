@@ -23,20 +23,19 @@ def trim_whitespace(file):
         raise RuntimeError("Unknown file type")
 
 class ILPAttackerDrawer(object):
-    def __init__(self, results_name, output_format, with_node_id=False):
-        self.results_name = results_name
+    def __init__(self, results, iteration, output_format, with_node_id=False):
+        self.results = results
+        self.iteration = iteration
         self.output_format = output_format
         self.with_node_id = with_node_id
 
-        self.r = Results(results_name)
-
-        self.shortest_path_lengths = {src: nx.shortest_path_length(self.r.graph, source=src) for src in self.r.results.sources}
+        self.shortest_path_lengths = {src: nx.shortest_path_length(self.results.graph, source=src) for src in self.results.sources}
 
         moves = []
 
-        for (time, pair) in enumerate(self.r.attacker_moves_at_time):
+        for (time, pair) in enumerate(self.results.attacker_moves_at_time):
 
-            bcasts = [msg for (nid, msg) in self.r.broadcasts_at_time[time] if nid == pair[1]]
+            bcasts = [msg for (nid, msg) in self.results.broadcasts_at_time[time] if nid == pair[1]]
 
             if time == 0:
                 xvalue = pair[0] if with_node_id else self.min_src_distance(pair[0])
@@ -80,7 +79,7 @@ class ILPAttackerDrawer(object):
 
         if self.with_node_id:
             ax.set_xlabel("Node ID", **font)
-            ax.set_xticks(self.r.nodes)
+            ax.set_xticks(self.results.nodes)
         else:
             for (x, t, label, target) in self.moves:
                 ax.annotate(target,
@@ -104,8 +103,8 @@ class ILPAttackerDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_attacker2d.{}'.format(self.results_name.replace(".", "_"), self.output_format)
-        plt.savefig(file)
+        file = 'out/{}_{}_attacker2d.{}'.format(self.results.name.replace(".", "_"), self.iteration, self.output_format)
+        fig.savefig(file)
         trim_whitespace(file)
 
         if show:
@@ -117,16 +116,25 @@ parser.add_argument("results", metavar="R", nargs="+")
 parser.add_argument("--no-show", action='store_true', default=False)
 parser.add_argument("--with-node-id", action='store_true', default=False)
 parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
+parser.add_argument("--intermediate", action='store_true', default=False)
 
 args = parser.parse_args(sys.argv[1:])
 
-for result in args.results:
-    print("Creating graph for ", result)
+for result_name in args.results:
+    print("Creating graph for ", result_name)
 
     try:
-        drawer = ILPAttackerDrawer(result, output_format=args.format, with_node_id=args.with_node_id)
+        results_data = Results.parse_file(result_name)
     except IncompleteResultFileError as ex:
         print(ex)
         continue
 
-    drawer.draw(show=not args.no_show)
+    to_iterate = list(enumerate(results_data))
+    to_iterate[-1] = ("final", to_iterate[-1][1])
+
+    if not args.intermediate:
+        to_iterate = [to_iterate[-1]]
+
+    for (i, result_data) in to_iterate:
+        drawer = ILPAttackerDrawer(result_data, i, output_format=args.format, with_node_id=args.with_node_id)
+        drawer.draw(show=not args.no_show)

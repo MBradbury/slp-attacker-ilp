@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 import argparse
 from collections import defaultdict, namedtuple, OrderedDict
+import itertools
 import math
 import os
 import subprocess
@@ -56,49 +57,50 @@ class ILPMessageDrawer(object):
 
             plt.clf()
 
-            ax = plt.gca()
+            fig, ax = plt.subplots()
 
             ax.set_aspect("equal")
             ax.set_axis_off()
             ax.invert_yaxis()
             #ax.set_title("Message {}".format(msg))
 
-            self.draw_subplot(msg)
+            self.draw_subplot(msg, ax)
 
             file = os.path.join(out_dir, '{}.{}'.format(msg, self.output_format))
-            plt.savefig(file)
+            fig.savefig(file)
             trim_whitespace(file)
 
     def draw_all_together(self, show=True):
 
         num_messages = self.r.messages
-        x = math.floor(math.sqrt(num_messages))
-        y = math.ceil(num_messages / x)
+        x = int(math.floor(math.sqrt(num_messages)))
+        y = int(math.ceil(num_messages / x))
 
         print(x, y, num_messages)
 
-        plt.figure(figsize=(18.0, 12.0))
+        fig, axs = plt.subplots(x, y, figsize=(18.0, 12.0))
 
-        for msg in range(1, num_messages+1):
-
-            ax = plt.subplot(x, y, msg)
+        for (msg, ax) in zip(range(1, num_messages+1), axs.reshape(-1)):
             ax.set_aspect("equal")
             ax.set_title("Message {}".format(msg))
             ax.set_axis_off()
             ax.invert_yaxis()
-            self.draw_subplot(msg)
+            self.draw_subplot(msg, ax)
+
+        for ax in itertools.islice(axs.reshape(-1), num_messages, None):
+            ax.axis("off")
 
         if not os.path.exists('out'):
             os.makedirs('out')
 
         file = 'out/{}_{}_msg.{}'.format(self.r.name.replace(".", "_"), self.iteration, self.output_format)
-        plt.savefig(file)
+        fig.savefig(file)
         trim_whitespace(file)
 
         if show:
             plt.show()
 
-    def draw_subplot(self, msg):
+    def draw_subplot(self, msg, ax):
         real_moves_to_show = self.real_moves.get(msg, tuple())
 
         message_colours = self.r.message_colours()
@@ -136,6 +138,7 @@ class ILPMessageDrawer(object):
                 node_color=color,
                 node_size=size,
                 nodelist=nodes,
+                ax=ax,
             )
 
             drawn_nodes.set_edgecolor('black')
@@ -143,16 +146,19 @@ class ILPMessageDrawer(object):
         nx.draw_networkx_edges(graph, pos,
             edge_color=self.message_colours[msg-1],
             width=3.5,
-            arrows=True
+            arrows=True,
+            ax=ax,
         )
 
         nx.draw_networkx_edge_labels(graph, pos,
-            edge_labels=edges
+            edge_labels=edges,
+            ax=ax,
         )
 
         nx.draw_networkx_labels(graph, pos,
             labels=nx.get_node_attributes(graph, 'label'),
-            font_size=12
+            font_size=12,
+            ax=ax,
         )
 
 def main():
@@ -161,6 +167,7 @@ def main():
     parser.add_argument("--no-show", action='store_true', default=False)
     parser.add_argument("--combine", action='store_true', default=False)
     parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
+    parser.add_argument("--intermediate", action='store_true', default=False)
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -173,7 +180,13 @@ def main():
             print(ex)
             continue
 
-        for (i, result_data) in enumerate(results_data):
+        to_iterate = list(enumerate(results_data))
+        to_iterate[-1] = ("final", to_iterate[-1][1])
+
+        if not args.intermediate:
+            to_iterate = [to_iterate[-1]]
+
+        for (i, result_data) in to_iterate:
 
             drawer = ILPMessageDrawer(result_data, i, output_format=args.format)
 
