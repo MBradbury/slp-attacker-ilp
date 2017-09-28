@@ -224,7 +224,12 @@ subject to {
 		    		(sum (n2 in Nodes) sum (t2 in Times : t2 > t1)
 		    			(node_generated_fake_message_at[n2][m][t2] == 1)) == 0;
 		
-		ctF02: // Fake Messages can only be forwarded after a neighbour has sent it
+		ctF02: // A fake message cannot be generated at multiple nodes at a given time
+		forall (t in Times : t > 0)
+		  forall (m in FakeMessages)
+		     (sum (n in Nodes) node_generated_fake_message_at[n][m][t]) <= 1;
+		
+		ctF03: // Fake Messages can only be forwarded after a neighbour has sent it
 		forall (n in Nodes)
 		  forall (m in FakeMessages)
 		    forall (t1 in Times : t1 > 0)
