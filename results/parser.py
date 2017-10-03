@@ -28,13 +28,13 @@ def ilp_array_tuple_set_eval(il_array):
     return ast.literal_eval(il_array)
 
 def ilp_array_dicts_eval(il_array):
+
     il_array = il_array.strip()
     il_array = il_array.replace(" {", ",{")
-    il_array = il_array.replace("\n", ",")
-    il_array = il_array.replace("         ", "")
+    il_array = re.sub(r"([0-9]+)\s+(?=[0-9]+)", r"\1,", il_array)
+    il_array = il_array.replace("]\n", "],\n")
     il_array = il_array.replace("{", "[")
     il_array = il_array.replace("}", "]")
-    il_array = il_array.replace(" ", ",")
 
     return ast.literal_eval(il_array)
 

@@ -181,7 +181,11 @@ def main():
             continue
 
         to_iterate = list(enumerate(results_data))
-        to_iterate[-1] = ("final", to_iterate[-1][1])
+
+        try:
+            to_iterate[-1] = ("final", to_iterate[-1][1])
+        except IndexError:
+            continue
 
         if not args.intermediate:
             to_iterate = [to_iterate[-1]]
