@@ -67,16 +67,9 @@ class ILPAttackerDrawer(object):
         if show:
             plt.show()
 
-
-parser = argparse.ArgumentParser(description="ILP Draw Attacker 3D", add_help=True)
-parser.add_argument("results", metavar="R", nargs="+")
-parser.add_argument("--no-show", action='store_true', default=False)
-
-args = parser.parse_args(sys.argv[1:])
-
-for result in args.results:
-    print("Creating graph for ", result)
-
+def draw(result, i, args):
     drawer = ILPAttackerDrawer(result)
 
     drawer.draw(show=not args.no_show)
+
+    plt.clf()

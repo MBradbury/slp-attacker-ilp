@@ -110,35 +110,8 @@ class ILPAttackerDrawer(object):
         if show:
             plt.show()
 
+def draw(result, i, args):
+    drawer = ILPAttackerDrawer(result, i, output_format=args.format, with_node_id=args.with_node_id)
+    drawer.draw(show=not args.no_show)
 
-parser = argparse.ArgumentParser(description="ILP Draw Attacker 2D", add_help=True)
-parser.add_argument("results", metavar="R", nargs="+")
-parser.add_argument("--no-show", action='store_true', default=False)
-parser.add_argument("--with-node-id", action='store_true', default=False)
-parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
-parser.add_argument("--intermediate", action='store_true', default=False)
-
-args = parser.parse_args(sys.argv[1:])
-
-for result_name in args.results:
-    print("Creating graph for ", result_name)
-
-    try:
-        results_data = Results.parse_file(result_name)
-    except IncompleteResultFileError as ex:
-        print(ex)
-        continue
-
-    to_iterate = list(enumerate(results_data))
-
-    try:
-        to_iterate[-1] = ("final", to_iterate[-1][1])
-    except IndexError:
-        continue
-
-    if not args.intermediate:
-        to_iterate = [to_iterate[-1]]
-
-    for (i, result_data) in to_iterate:
-        drawer = ILPAttackerDrawer(result_data, i, output_format=args.format, with_node_id=args.with_node_id)
-        drawer.draw(show=not args.no_show)
+    plt.clf()

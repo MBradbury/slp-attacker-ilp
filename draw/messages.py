@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-from __future__ import print_function, division
-
+#!/usr/bin/env python3
 import argparse
 from collections import defaultdict, namedtuple, OrderedDict
 import itertools
 import math
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -46,7 +45,7 @@ class ILPMessageDrawer(object):
         self.message_colours = self.r.message_colours()
 
     def draw_all(self):
-        out_dir = os.path.join("out", self.results.name.replace(".", "_"), self.iteration)
+        out_dir = os.path.join("out", self.r.name.replace(".", "_"), self.iteration)
 
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
@@ -161,45 +160,12 @@ class ILPMessageDrawer(object):
             ax=ax,
         )
 
-def main():
-    parser = argparse.ArgumentParser(description="ILP Draw Messages", add_help=True)
-    parser.add_argument("results", metavar="R", nargs="+")
-    parser.add_argument("--no-show", action='store_true', default=False)
-    parser.add_argument("--combine", action='store_true', default=False)
-    parser.add_argument("--format", choices=["pdf", "png"], default="pdf")
-    parser.add_argument("--intermediate", action='store_true', default=False)
+def draw(result, i, args):
+    drawer = ILPMessageDrawer(result, i, output_format=args.format)
 
-    args = parser.parse_args(sys.argv[1:])
+    if args.combine:
+        drawer.draw_all_together(show=not args.no_show)
+    else:
+        drawer.draw_all()
 
-    for result_name in args.results:
-        print("Creating graph for ", result_name)
-
-        try:
-            results_data = Results.parse_file(result_name)
-        except IncompleteResultFileError as ex:
-            print(ex)
-            continue
-
-        to_iterate = list(enumerate(results_data))
-
-        try:
-            to_iterate[-1] = ("final", to_iterate[-1][1])
-        except IndexError:
-            continue
-
-        if not args.intermediate:
-            to_iterate = [to_iterate[-1]]
-
-        for (i, result_data) in to_iterate:
-
-            drawer = ILPMessageDrawer(result_data, i, output_format=args.format)
-
-            if args.combine:
-                drawer.draw_all_together(show=not args.no_show)
-            else:
-                drawer.draw_all()
-
-            plt.clf()
-
-if __name__ == "__main__":
-    main()
+    plt.clf()
