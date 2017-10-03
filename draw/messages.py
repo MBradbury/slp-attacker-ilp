@@ -40,8 +40,6 @@ class ILPMessageDrawer(object):
 
         self.real_moves = dict(real_moves)
 
-        print(self.real_moves)
-
         self.message_colours = self.r.message_colours()
 
     def draw_all(self):
@@ -75,7 +73,7 @@ class ILPMessageDrawer(object):
         x = int(math.floor(math.sqrt(num_messages)))
         y = int(math.ceil(num_messages / x))
 
-        print(x, y, num_messages)
+        #print(x, y, num_messages)
 
         fig, axs = plt.subplots(x, y, figsize=(18.0, 12.0))
 
@@ -92,7 +90,7 @@ class ILPMessageDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_{}_msg.{}'.format(self.r.name.replace(".", "_"), self.iteration, self.output_format)
+        file = 'out/{}_msg_{}.{}'.format(self.r.name.replace(".", "_"), self.iteration, self.output_format)
         fig.savefig(file)
         trim_whitespace(file)
 
@@ -111,14 +109,20 @@ class ILPMessageDrawer(object):
 
         edges = OrderedDict()
 
-        for (time_slot, nid) in real_moves_to_show:
+        for (time_slot, nid) in sorted(real_moves_to_show, key=lambda x: x[0]):
             for neigh in self.r.graph.neighbors(nid):
-                if (neigh, nid) not in edges:
-                    edges[(nid, neigh)] = time_slot
+                if (neigh, nid) in edges:
+                    continue
+
+                if (nid, neigh) not in edges:
+                    edges[(nid, neigh)] = set()
+
+                edges[(nid, neigh)].add(time_slot)
+
+        for k in edges.keys():
+            edges[k] = str(list(sorted(edges[k])))[1:-1]
 
         graph.add_edges_from((x, y) for (x, y) in edges.keys())
-
-        print(graph.edges())
 
         node_shapes = {node_data['shape'] for (node, node_data) in graph.nodes(data=True)}
         
