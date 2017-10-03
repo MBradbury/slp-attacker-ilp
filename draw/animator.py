@@ -111,7 +111,7 @@ def draw(result, i, args):
                                   interval=2500, blit=False, init_func=anim.init,
                                   repeat=True, repeat_delay=2500)
 
-    path = None
+    path = 'out/{}_anim_{}.{}'.format(result.name.replace(".", "_"), i, args.format)
 
     if args.format == "mp4":
         # save the animation as an mp4.  This requires ffmpeg or mencoder to be
@@ -119,15 +119,12 @@ def draw(result, i, args):
         # the video can be embedded in html5.  You may need to adjust this for
         # your system: for more information, see
         # http://matplotlib.sourceforge.net/api/animation_api.html
-        path = 'out/{}_{}_anim.mp4'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
 
     elif args.format == "gif":
-        path = 'out/{}_{}_anim.gif'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer='imagemagick')
 
     elif args.format == "frames":
-        path = 'out/{}_{}_frames/'.format(result.name.replace(".", "_"), i)
         ani.save(path, writer=FrameWriter())
 
         # Can't show these individual frames

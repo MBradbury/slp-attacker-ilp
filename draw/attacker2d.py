@@ -103,7 +103,7 @@ class ILPAttackerDrawer(object):
         if not os.path.exists('out'):
             os.makedirs('out')
 
-        file = 'out/{}_{}_attacker2d.{}'.format(self.results.name.replace(".", "_"), self.iteration, self.output_format)
+        file = 'out/{}_attacker2d_{}.{}'.format(self.results.name.replace(".", "_"), self.iteration, self.output_format)
         fig.savefig(file)
         trim_whitespace(file)
 
