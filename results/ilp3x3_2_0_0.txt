@@ -1,0 +1,44 @@
+Default LOCALE: C
+
+<<< setup, at 0s, took 1.50714e+09s
+
+// solution 1 with objective 20
+coords = """ [ <0 0>  <1 0>  <2 0>  <0 1>  <1 1>  <2 1>  <0 2>  <1 2>  <2 2>]"""
+neighbours_to = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+neighbours_from = """ [{2 4} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+range = 1
+sources =  {1}
+sinks =  {9}
+attacker_start_pos = 9
+attacker_range = 1
+attacker_neighbours_to = """ [{2 4} {3 5} {2 6} {5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+attacker_neighbours_from = """ [{} {1 3 5} {2 6} {1 5 7} {2 4 6 8} {3 5 9} {4 8} {5 7 9} {6 8}]"""
+normal_messages = 5
+fake_messages = 0
+messages = 5
+slots_per_second = 5
+source_period = 1
+safety_period = 5
+message_sent_once = 0
+objective_function = 2
+attacker_source_distance_obj = 2
+attacker_find_source_obj = 0
+energy_usage_obj = 20
+min_attacker_moves_obj = 4
+message_latency_obj = 52
+max_attacker_moves_obj = -4
+used_edges = """ [{<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {<9 9>} {
+        <9 9>} {<9 9>} {<9 8>} {<8 8>} {<8 8>} {<8 8>} {<8 8>} {
+        <8 8>} {<8 8>} {<8 8>} {<8 8>} {<8 8>} {<8 8>} {<8 8>} {
+        <8 7>} {<7 4>} {<4 7>} {<7 7>}]"""
+broadcasted_at = """ [[{1} {6} {11} {16} {21}]
+         [{} {} {} {20} {}]
+         [{} {} {} {} {}]
+         [{23} {8} {21} {} {22}]
+         [{24} {} {} {23} {}]
+         [{25} {} {} {} {}]
+         [{} {9} {22} {} {24}]
+         [{} {10} {23} {24} {25}]
+         [{} {} {} {} {}]]"""
+message_latency = """ [24 4 12 8 4]"""
+
