@@ -67,6 +67,8 @@ class Results(object):
         self.objective = objective
         self.name = name
 
+        self.final = False
+
         for (k, v) in results.items():
             setattr(self, k, v)
 
@@ -131,6 +133,7 @@ class Results(object):
         objectives = {}
         solution_number = None
         profiles = defaultdict(list)
+        main_return = None
 
         read_profile = False
 
@@ -161,9 +164,9 @@ class Results(object):
 
                 match = main_return_re.match(line)
                 if match is not None:
-                    ret = int(match.group(1))
-                    if ret != 0:
-                        print("Main returned error code {}".format(ret))
+                    main_return = int(match.group(1))
+                    if main_return != 0:
+                        print("Main returned error code {}".format(main_return))
                     continue
 
                 if line.startswith('Profiler Report'):
@@ -194,6 +197,10 @@ class Results(object):
             result = Results(lvar, objective=objectives[solno], name=file_name)
 
             results.append(result)
+
+        # Check that we got a final result
+        if main_return is not None:
+            results[-1].final = True
 
         return results
 

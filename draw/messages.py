@@ -14,17 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+from draw.common import trim_whitespace
 from results.parser import Results, IncompleteResultFileError
 
 TimeNid = namedtuple("TimeNid", ("time", "nid"))
-
-def trim_whitespace(file):
-    if file.endswith('.pdf'):
-        subprocess.check_call(["pdfcrop", file, file])
-    elif file.endswith('.png'):
-        subprocess.check_call(["convert", file, "-trim", file])
-    else:
-        raise RuntimeError("Unknown file type")
 
 class ILPMessageDrawer(object):
     def __init__(self, results, iteration, output_format):
@@ -43,7 +36,7 @@ class ILPMessageDrawer(object):
         self.message_colours = self.r.message_colours()
 
     def draw_all(self):
-        out_dir = os.path.join("out", self.r.name.replace(".", "_"), self.iteration)
+        out_dir = os.path.join("out", self.r.name.replace(".", "_"), str(self.iteration))
 
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
@@ -109,7 +102,7 @@ class ILPMessageDrawer(object):
 
         edges = OrderedDict()
 
-        for (time_slot, nid) in sorted(real_moves_to_show, key=lambda x: x[0]):
+        for (time_slot, nid) in real_moves_to_show:
             for neigh in self.r.graph.neighbors(nid):
                 if (neigh, nid) in edges:
                     continue
@@ -119,6 +112,7 @@ class ILPMessageDrawer(object):
 
                 edges[(nid, neigh)].add(time_slot)
 
+        # Tidy up edge label
         for k in edges.keys():
             edges[k] = str(list(sorted(edges[k])))[1:-1]
 

@@ -10,17 +10,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from draw.common import trim_whitespace
 from results.parser import Results, IncompleteResultFileError
 
 font = {"size": "18"}
-
-def trim_whitespace(file):
-    if file.endswith('.pdf'):
-        subprocess.check_call(["pdfcrop", file, file])
-    elif file.endswith('.png'):
-        subprocess.check_call(["convert", file, "-trim", file])
-    else:
-        raise RuntimeError("Unknown file type")
 
 class ILPAttackerDrawer(object):
     def __init__(self, results, iteration, output_format, with_node_id=False):

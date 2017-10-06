@@ -17,9 +17,7 @@ actions = {
 class Runner(object):
     def __init__(self, args):
         self.args = args
-
         self.action_fn = actions[args.action].draw
-
 
     def run(self, result_name):
         print("Creating graph for ", result_name)
@@ -32,8 +30,11 @@ class Runner(object):
 
         to_iterate = list(enumerate(results_data))
 
+        # Mark the final result as final
+        # but only if it exists
         try:
-            to_iterate[-1] = ("final", to_iterate[-1][1])
+            if to_iterate[-1][1].final:
+                to_iterate[-1] = ("final", to_iterate[-1][1])
         except IndexError:
             print("No results", file=sys.stderr)
             return
