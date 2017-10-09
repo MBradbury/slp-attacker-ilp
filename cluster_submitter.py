@@ -59,6 +59,28 @@ class Cluster(object):
 
         return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
+    def pbs_submit(self, command, job_name, walltime, notify=None, hold=False, *args, **kwargs):
+        submit_command = "qsub -j oe -l nodes={}:ppn={} -l walltime={} -l mem={} -N \"{}\"".format(
+            self.nodes, self.ppn, self._walltime_to_str(walltime), self.pmem, job_name
+        )
+
+        if hasattr(self, "queue"):
+            submit_command += " -q {}".format(self.queue)
+
+        if notify:
+            submit_command += " -m bae -M {}".format(notify)
+
+        if hold:
+            submit_command += " -h"
+
+        cluster_command = "echo '{} >> ilp{}.txt' | {}".format(command, job_name, submit_command)
+
+        if hasattr(self, "max_walltime"):
+            if walltime > self.max_walltime:
+                raise RuntimeError("Unable to queue \"{}\" as its walltime is above the maximum".format(cluster_command))
+
+        self._submit_job(cluster_command)
+
     def moab_submit(self, command, job_name, walltime, notify=None, hold=False, *args, **kwargs):
         submit_command = "msub -j oe -l nodes={}:ppn={} -l walltime={} -l mem={} -N \"{}\"".format(
             self.nodes, self.ppn, self._walltime_to_str(walltime), self.pmem, job_name
@@ -129,14 +151,15 @@ class Orac(Cluster):
 
 class Chiron(Cluster):
     nodes = 1
-    ppn = 96      # Up to 96
-    pmem = "512gb" # Up to 1TB
+    ppn = 48      # Up to 96
+    pmem = "512gb" # Up to 4TB
+    queue = "fat"
 
     def __init__(self, dry_run):
         super(Chiron, self).__init__(dry_run)
 
     def submit_command(self, *args, **kwargs):
-        return self.moab_submit(*args, **kwargs)
+        return self.pbs_submit(*args, **kwargs)
 
 def cluster_names():
     return [cluster.__name__ for cluster in Cluster.__subclasses__()]
