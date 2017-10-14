@@ -19,7 +19,7 @@ safety_periods = [5, 7, 9]
 slots_per_second = [6, 7, 9]"""
 
 all_options = {
-    "obj": [0, 1, 2, 3, 4],
+    "obj": [0, 1, 2, 3, 4, 5],
     "num_fake_messages": [0, 3],
     "message_sent_once": [0, 1],
 }

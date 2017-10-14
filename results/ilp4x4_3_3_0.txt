@@ -1,6 +1,6 @@
 Default LOCALE: C
 
-<<< setup, at 0s, took 1.50639e+09s
+<<< setup, at 0s, took 1.50773e+09s
 
 // solution 1 with objective 1
 coords = """ [ <0 0>  <1 0>  <2 0>  <3 0>  <0 1>  <1 1>  <2 1>  <3 1>  <0 2> 
