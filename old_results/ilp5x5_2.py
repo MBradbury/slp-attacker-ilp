@@ -45,7 +45,7 @@ neighbours =  {
 
 sources = {1}
 
-sink_id = 13
+sink_ids = {13}
 
 normal_messages = 7
 fake_messages = 0

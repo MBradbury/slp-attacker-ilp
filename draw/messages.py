@@ -11,6 +11,7 @@ import sys
 import networkx as nx
 import numpy as np
 
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
@@ -36,6 +37,8 @@ class ILPMessageDrawer(object):
         self.message_colours = self.r.message_colours()
 
     def draw_all(self):
+        matplotlib.rcParams.update({'figure.autolayout': True})
+
         out_dir = os.path.join("out", self.r.name.replace(".", "_"), str(self.iteration))
 
         if not os.path.exists(out_dir):
@@ -98,7 +101,7 @@ class ILPMessageDrawer(object):
         graph = nx.DiGraph(self.r.graph)
 
         # Set up message edges
-        graph.remove_edges_from(graph.edges())
+        graph.remove_edges_from(list(graph.edges()))
 
         edges = OrderedDict()
 
@@ -142,19 +145,22 @@ class ILPMessageDrawer(object):
 
         nx.draw_networkx_edges(graph, pos,
             edge_color=self.message_colours[msg-1],
-            width=3.5,
+            width=7,
             arrows=True,
             ax=ax,
         )
 
         nx.draw_networkx_edge_labels(graph, pos,
             edge_labels=edges,
+            font_size=13,
+            label_pos=0.55,
+            bbox={"alpha": 0.9, "facecolor": "white", "edgecolor": "none"},
             ax=ax,
         )
 
         nx.draw_networkx_labels(graph, pos,
             labels=nx.get_node_attributes(graph, 'label'),
-            font_size=12,
+            font_size=18,
             ax=ax,
         )
 

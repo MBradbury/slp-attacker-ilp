@@ -11,9 +11,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from draw.common import trim_whitespace
-from results.parser import Results, IncompleteResultFileError
 
-font = {"size": "18"}
+font = {"size": "20"}
 
 class ILPAttackerDrawer(object):
     def __init__(self, results, iteration, output_format, with_node_id=False):
@@ -48,7 +47,11 @@ class ILPAttackerDrawer(object):
         return min(dist[nid] for dist in self.shortest_path_lengths.values())
 
     def draw(self, show=True):
+
+        matplotlib.rcParams.update({'figure.autolayout': True})
+
         fig = plt.figure()
+        #fig.tight_layout()
         ax = fig.gca()
 
         xs, ts, labels, targets = zip(*self.moves)
@@ -90,8 +93,8 @@ class ILPAttackerDrawer(object):
         ax.set_ylabel("Time (slots)", **font)
         ax.set_ylim(bottom=0)
 
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.tick_params(axis='both', which='minor', labelsize=16)
+        ax.tick_params(axis='both', which='major', labelsize=18)
+        ax.tick_params(axis='both', which='minor', labelsize=18)
 
         if not os.path.exists('out'):
             os.makedirs('out')
