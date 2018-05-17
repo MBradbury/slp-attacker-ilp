@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 from datetime import timedelta
@@ -22,22 +22,25 @@ all_options = {
     "obj": [0, 1, 2, 3, 4, 5],
     "num_fake_messages": [0, 3],
     "message_sent_once": [0, 1],
+    "target_receive_ratio": [0.6, 0.8, 1.0],
 }
 
-option_keys = ("obj", "num_fake_messages", "message_sent_once")
+option_keys = ("obj", "num_fake_messages", "message_sent_once", "target_receive_ratio")
 
 def estimate_walltime(dat, options):
-    if dat == "3x3":
-        return timedelta(hours=1)
-    elif dat == "4x4":
-        if options["obj"] == 4:
-            return timedelta(hours=48)
-        else:
-            return timedelta(hours=16)
-    elif dat == "5x5":
-        return timedelta(hours=48)
-    else:
-        return timedelta(hours=48)
+	return timedelta(hours=48)
+
+    #if dat == "3x3":
+    #    return timedelta(hours=6)
+    #elif dat == "4x4":
+    #    if options["obj"] == 4:
+    #        return timedelta(hours=48)
+    #    else:
+    #        return timedelta(hours=16)
+    #elif dat == "5x5":
+    #    return timedelta(hours=48)
+    #else:
+    #    return timedelta(hours=48)
 
 
 class Cluster(object):
@@ -48,9 +51,9 @@ class Cluster(object):
         return dat + "_" + "_".join(map(str, options))
 
     def generate_command(self, dat, options):
-        options_string = " ".join("-D {}={}".format(k, v) for (k, v) in options.items())
+        options_string = " ".join(f"-D {k}={v}" for (k, v) in options.items())
 
-        return "oplrun -v -w -deploy -profile {} -p SLP {}".format(options_string, dat)
+        return f"oplrun -v -w -deploy -profile {options_string} -p SLP {dat}"
 
     def _walltime_to_str(self, walltime):
         total_seconds = int(walltime.total_seconds())
@@ -65,19 +68,19 @@ class Cluster(object):
         )
 
         if hasattr(self, "queue"):
-            submit_command += " -q {}".format(self.queue)
+            submit_command += f" -q {self.queue}"
 
         if notify:
-            submit_command += " -m bae -M {}".format(notify)
+            submit_command += f" -m bae -M {notify}"
 
         if hold:
             submit_command += " -h"
 
-        cluster_command = "echo '{} >> ilp{}.txt' | {}".format(command, job_name, submit_command)
+        cluster_command = f"echo '{command} >> ilp{job_name}.txt' | {submit_command}"
 
         if hasattr(self, "max_walltime"):
             if walltime > self.max_walltime:
-                raise RuntimeError("Unable to queue \"{}\" as its walltime is above the maximum".format(cluster_command))
+                raise RuntimeError(f"Unable to queue \"{cluster_command}\" as its walltime is above the maximum")
 
         self._submit_job(cluster_command)
 

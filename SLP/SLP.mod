@@ -23,6 +23,9 @@ int obj = ...; // The objective function to use
 int message_sent_once = ...; // Are node allowed to send a message more than once?
 assert message_sent_once == 1 || message_sent_once == 0;
 
+float target_receive_ratio = ...; // The percentage of messages that need to be received at a sink
+assert 0.0 <= target_receive_ratio <= 1.0;
+
 // Network
 int num_nodes = ...; // Number of nodes in the network
 float comms_range = ...; // The range of the nodes
@@ -116,14 +119,25 @@ dexpr int node_generated_fake_message_at[n in Nodes][m in FakeMessages][t in Tim
 	broadcasts[n][m][t] == 1 &&
 	(sum (neigh in NeighboursTo[n]) sum (t2 in Times : 0 < t2 < t) broadcasts[neigh][m][t2]) == 0;
 
+dexpr int sink_received_message[m in SourceMessages] =
+	sum (sink_id in SinkIDs, n in NeighboursTo[sink_id], t in Times : t > 0) broadcasts[n][m][t];
+	
+dexpr float receive_ratio =
+	(sum (m in SourceMessages) (sink_received_message[m] >= 1)) / card(SourceMessages);
+
 dexpr int message_latency[m in SourceMessages] =
+	// If the sink never received the message force the latency to be 10000
+	(sink_received_message[m] < 1) ? 10000 : 
+
 	// Need to find receive time
 	min(sink_id in SinkIDs, n in NeighboursTo[sink_id], t in Times)
 		((broadcasts[n][m][t] == 1) ? t : 10000)
 	-
 	// Need to find send time
-	min(source_id in SourceIDs, t in Times)
-		((broadcasts[source_id][m][t] == 1) ? t : 10000);
+	min(t in Times)
+		((broadcasts[m.src][m][t] == 1) ? t : 10000)
+	// Need to add one to account for time spent
+	+ 1;
 
 // Objective dexprs
 
@@ -141,11 +155,11 @@ dexpr int energy_usage_obj =
 	1000 * attacker_find_source_obj +
 	
   	// Minimise the number of messages sent
-	(sum(n in Nodes) sum(m in AllMessages) sum(t in Times) broadcasts[n][m][t]);
+	(sum(n in Nodes, m in AllMessages, t in Times) broadcasts[n][m][t]);
 
 // Minimise the number of moves the attacker makes in response to a broadcast (works)
 dexpr int min_attacker_moves_obj =
-	sum(e in AttackerEdges : e.u != e.v) sum(m in AllMessages) sum(t in Times)
+	sum(e in AttackerEdges : e.u != e.v, m in AllMessages, t in Times : t > 0)
 	  (broadcasts[e.v][m][t] == 1 && attacker_path[t][e] == 1);
 
 // Maximise the number of moves the attacker makes in response to a broadcast (not working)
@@ -159,7 +173,7 @@ dexpr float message_latency_obj =
 	// If the attacker finds the source, then weight this run poorly
 	1000 * attacker_find_source_obj +
 
-  	sum(m in SourceMessages) message_latency[m];
+  	sum(m in SourceMessages) ((sink_received_message[m] >= 1) ? message_latency[m] : 0);
 
 assert obj >= 0 && obj <= 5;
 
@@ -185,14 +199,18 @@ subject to {
 	    broadcasts[n][m][0] == 0;
 	
 	ctR02: // When do source nodes send messages
-	forall (n in SourceIDs)
-	  forall (m in SourceMessages : m.src == n)
-	    broadcasts[n][m][((m.msg - 1) * source_period_quantised) + 1] == 1;
+	forall (m in SourceMessages)
+	  broadcasts[m.src][m][((m.msg - 1) * source_period_quantised) + 1] == 1; 
+	
+	ctR02AndAHalf: // Source nodes will only send a message after the correct time
+	forall (m in SourceMessages)
+	  forall (t in Times : 0 < t < ((m.msg - 1) * source_period_quantised) + 1)
+	    broadcasts[m.src][m][t] == 0;
 	
 	ctR03: // No node sends more than one message concurrently
 	forall (t in Times : t > 0) // Optimisation as t=0 no messages are sent
 	  forall (n in Nodes)
-	    (sum (m in AllMessages) broadcasts[n][m][t]) <= 1;
+	    0 <= (sum (m in AllMessages) broadcasts[n][m][t]) <= 1;
 	
 	if (message_sent_once == 1)
 	{
@@ -201,7 +219,7 @@ subject to {
 		  forall (n in Nodes)
 		    forall (t1 in Times : t1 > 0)
 		      (broadcasts[n][m][t1] == 1) => (sum (t2 in Times : t2 > t1) broadcasts[n][m][t2]) == 0;
-	}	      
+	}	
 	
 	ctR05: // Source Messages can only be forwarded after a neighbour has sent it
 	forall (n in Nodes : n not in SourceIDs) // Source nodes are exempt here, as they generate the message.
@@ -210,9 +228,8 @@ subject to {
 	      (broadcasts[n][m][t1] == 1) => 
 	      	(sum (neigh in NeighboursTo[n]) sum(t2 in Times : 0 < t2 < t1) broadcasts[neigh][m][t2]) >= 1;
 	
-	ctR06: // Messages sent by source must reach at least one sink
-	forall (m in SourceMessages)
-	  (sum (sink_id in SinkIDs) sum (n in NeighboursTo[sink_id]) sum (t in Times : t > 0) broadcasts[n][m][t]) >= 1;
+	ctR06: // Messages sent by source must reach at least one sink, possibly allowing for some missed messages
+	receive_ratio >= target_receive_ratio;
 	
 	if (num_fake_messages > 0)
 	{
@@ -312,6 +329,7 @@ execute
 	writeln("source_period = ", source_period);
 	writeln("safety_period = ", safety_period);
 	writeln("message_sent_once = ", message_sent_once); // ctR04 enabled or not
+	writeln("target_receive_ratio = ", target_receive_ratio);
 	writeln("objective_function = ", obj);
 	
 	writeln("attacker_source_distance_obj = ", -attacker_source_distance_obj);
@@ -324,6 +342,8 @@ execute
 	writeln("used_edges = \"\"\"", Used, "\"\"\"");
 	writeln("broadcasted_at = \"\"\"", BroadcastsAt, "\"\"\"");
 	writeln("message_latency = \"\"\"", message_latency, "\"\"\"");
+	writeln("sink_received_message = \"\"\"", sink_received_message, "\"\"\"");
+	writeln("receive_ratio = ", receive_ratio);
 }
 
 main
@@ -332,6 +352,7 @@ main
 	thisOplModel.generate();
 	cp.startNewSearch();
 	
+	// Output intermediate results
 	while (cp.next())
 	{
 		nbsol++;

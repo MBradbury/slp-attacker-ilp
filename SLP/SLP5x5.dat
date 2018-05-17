@@ -27,3 +27,5 @@ slots_per_second = 9;
 obj = 0;
 
 message_sent_once = 1;
+
+target_receive_ratio = 1.0;
