@@ -5,7 +5,9 @@ import multiprocessing
 import sys
 
 from draw import animator, attacker2d, attacker3d, messages
-from results.parser import Results, IncompleteResultFileError
+from results.parser import Results as NewResults, IncompleteResultFileError
+
+from old_results.parser import Results as OldResults
 
 actions = {
     "attacker2d": attacker2d,
@@ -22,11 +24,14 @@ class Runner(object):
     def run(self, result_name):
         print("Creating graph for ", result_name)
 
-        try:
-            results_data = Results.parse_file(result_name)
-        except IncompleteResultFileError as ex:
-            print(ex, file=sys.stderr)
-            return
+        if result_name.startswith("results"):
+            try:
+                results_data = NewResults.parse_file(result_name)
+            except IncompleteResultFileError as ex:
+                print(ex, file=sys.stderr)
+                return
+        else:
+            results_data = [OldResults(result_name)]
 
         to_iterate = list(enumerate(results_data))
 

@@ -73,18 +73,22 @@ def ilp_array_neighbour_dicts(il_array):
 
 class Results(object):
     def __init__(self, results_name):
-        self.results_name = results_name.replace("/", ".")
-        if self.results_name.endswith(".py"):
-            self.results_name = self.results_name[:-3]
+        self.name = results_name.replace("/", ".")
+        if self.name.endswith(".py"):
+            self.name = self.name[:-3]
 
-        results = importlib.import_module(self.results_name)
+        results = importlib.import_module(self.name)
         self.results = results
+
+        self.messages = results.messages
 
         if hasattr(self.results, "source_ids"):
             self.results.sources = self.results.source_ids
+        self.sources = self.results.sources
 
         if hasattr(self.results, "sink_id"):
             self.results.sink_ids = {self.results.sink_id}
+        self.sink_ids = self.results.sink_ids
 
         if isinstance(self.results.coords, str):
             self.results.coords = ilp_array_tuple_eval(self.results.coords)
@@ -106,16 +110,16 @@ class Results(object):
 
             self.graph.node[nid]['color'] = 'w'
             self.graph.node[nid]['shape'] = 'o'
-            self.graph.node[nid]['size'] = 350
+            self.graph.node[nid]['size'] = 650
 
         for nid in results.sources:
             self.graph.node[nid]['shape'] = 'p'
-            self.graph.node[nid]['size'] = 550
+            self.graph.node[nid]['size'] = 750
 
         if hasattr(self.results, "sink_ids"):
             for sink_id in self.results.sink_ids:
                 self.graph.node[sink_id]['shape'] = 'H'
-                self.graph.node[sink_id]['size'] = 550
+                self.graph.node[sink_id]['size'] = 750
 
         # Add edges
         if hasattr(self.results, "neighbours"):
@@ -173,6 +177,8 @@ class Results(object):
         self.attacker_positions = [v for (u, v) in self.attacker_moves_at_time]
 
         self.time_steps = len(self.attacker_moves_at_time)
+
+        self.final = True
 
         #self.verify()
 

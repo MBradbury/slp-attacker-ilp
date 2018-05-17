@@ -27,6 +27,8 @@ neighbours = {
 
 sources = {1}
 
+sink_ids = {16}
+
 messages = 7
 
 slots_per_second = 7
