@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 from datetime import timedelta
@@ -51,9 +51,9 @@ class Cluster(object):
         return dat + "_" + "_".join(map(str, options))
 
     def generate_command(self, dat, options):
-        options_string = " ".join(f"-D {k}={v}" for (k, v) in options.items())
+        options_string = " ".join("-D {}={}".format(k, v) for (k, v) in options.items())
 
-        return f"oplrun -v -w -deploy -profile {options_string} -p SLP {dat}"
+        return "oplrun -v -w -deploy -profile {} -p SLP {}".format(options_string, dat)
 
     def _walltime_to_str(self, walltime):
         total_seconds = int(walltime.total_seconds())
@@ -68,19 +68,19 @@ class Cluster(object):
         )
 
         if hasattr(self, "queue"):
-            submit_command += f" -q {self.queue}"
+            submit_command += " -q {}".format(self.queue)
 
         if notify:
-            submit_command += f" -m bae -M {notify}"
+            submit_command += " -m bae -M {}".format(notify)
 
         if hold:
             submit_command += " -h"
 
-        cluster_command = f"echo '{command} >> ilp{job_name}.txt' | {submit_command}"
+        cluster_command = "echo '{} >> ilp{}.txt' | {}".format(command, job_name, submit_command)
 
         if hasattr(self, "max_walltime"):
             if walltime > self.max_walltime:
-                raise RuntimeError(f"Unable to queue \"{cluster_command}\" as its walltime is above the maximum")
+                raise RuntimeError("Unable to queue \"{}\" as its walltime is above the maximum".format(cluster_command))
 
         self._submit_job(cluster_command)
 
