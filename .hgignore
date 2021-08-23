@@ -1,8 +1,0 @@
-syntax: glob
-.metadata/*
-*.gif
-*.mp4
-*.pyc
-*.pyo
-out/*
-old_out/*
